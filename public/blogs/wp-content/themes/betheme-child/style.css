@@ -1,0 +1,136 @@
+/*
+Theme Name: 	Betheme Child
+Theme URI: 		http://themes.muffingroup.com/betheme
+Author: 		Muffin group
+Author URI: 	http://muffingroup.com
+Description:	Child Theme for Betheme - Premium WordPress Theme
+Template:		betheme
+Version: 		1.6.1
+*/
+
+/* Theme customization starts here
+-------------------------------------------------------------- */
+
+.top_bar_right_wrapper a.action_button.top-bar-right-button:hover {
+    background: #fff !important; color: #000;}
+#Top_bar .menu_wrapper {
+    float: right;
+    z-index: 201;
+    position: relative;
+    right: 20%;
+}
+.menu-item.hover a {position: relative;}
+
+.menu-item.hover a::before , .current-menu-item a::before {
+    content: "";
+    width: 100%;
+    background: url(https://consortsolutions.com/demo/carjockblog/wp-content/uploads/2024/04/hover.png);
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    height: 17px;
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+}
+div#Top_bar.is-sticky .menu-item.hover a::before, div#Top_bar.is-sticky .current-menu-item a::before {
+    bottom: 0px;
+}
+#Side_slide #menu ul li a {
+    margin: 0px;
+    text-align: center;
+}
+#Side_slide .extras {
+    padding: 90px 20px 0px;
+}
+#Side_slide .close-wrapper a.close i {
+    color: #6cff0b;
+}
+#Side_slide #menu ul li > a {
+    padding: 25px 0px;
+}
+
+@media screen and (max-width: 767px){
+#Top_bar .menu_wrapper {	 position: inherit;
+}
+	}
+.grid .post-desc-wrapper{background-color:#fff;}
+#Filters .filters_buttons{    display: flex; justify-content: center;}
+ul.filters_buttons li {   font-size: 18px;}
+a {
+    color: #92d940;
+}
+a:hover{
+	  color: #92d940;
+}
+span.custom_cat_feild {
+    position: relative;
+    top: -56px;
+    background-image: linear-gradient(to left, #86c440, #6cbb4b, #54b155, #3ca65c, #239b62);
+    text-transform: uppercase;
+    padding: 10px 20px;
+    font-size: 20px;
+}
+
+span.custom_cat_feild a {
+    color: #fff;
+}
+
+.author-date span {
+    color: #BABABA;
+    line-height: 28px;
+    letter-spacing: 0.65px;
+    font-size: 18px;
+}
+
+i.fas.fa-chevron-circle-right {
+    color: #92d940;
+}
+
+a.post-more {
+    color: #8f8f8f;
+}
+
+.grid .post-desc-wrapper .post-desc {
+    padding: 20px 30px 20px 40px;
+}
+.post-desc{position:relative;}
+.post-desc:before {
+    content: "";
+    height: 59px;
+    width: 7px;
+    background: #BCBCBC;
+    position: absolute;
+    top: 20%;
+    left: 0;
+}
+
+input#submit:hover {
+    color: #fff !important;
+}
+
+
+@media screen and (max-width: 767px){
+	.mcb-section .mcb-wrap .mcb-item-zr4ghxo7a .mcb-column-inner-zr4ghxo7a{
+		    padding-top: 50px !important;    padding-bottom: 50px !important;	}
+h2 {
+    font-size: 28px;
+    line-height: 30px;
+}
+
+h3 {
+    font-size: 24px;
+}
+	
+/* .column_blog div#Filters, div#Filters {
+    display: none;
+} */
+	#Filters .filters_buttons li {
+    font-size: 12px;
+}
+	#Filters .filters_buttons{padding:0px;}
+	span.custom_cat_feild{top: -53px;}
+	.banner-wrapper h3{font-size:22px !important;line-height: 28px;margin-bottom: 0px;}
+	.banner-wrapper .subtitle {    font-size: 16px !important;}
+}

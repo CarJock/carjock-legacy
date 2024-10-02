@@ -1,0 +1,353 @@
+.profile-img-box {
+  margin: 44px 0;
+  padding: 50px 20px 20px;
+  text-align: center;
+  box-shadow: 0 0px 10px 0 rgba(0, 0, 0, 0.2);
+  border-radius: 9px;
+} 
+ .green-color {
+    color: #19c350;
+  }  
+  
+  button.btn.btn-primary {
+    padding: 13px 33px;
+    background: linear-gradient(45deg, #37a35b, #8ce159);
+    border: 0px;
+}
+ .profile-link {
+    font-weight: 500;
+} 
+
+
+.profile-img-box > div a {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 10px;
+  cursor: pointer;
+  align-items: center;
+}
+.profile-img-box > div a {
+  text-align: left;
+}
+
+.profile.relatedCar h4 {
+  line-height: 60px;
+  color: #86C440;
+  font-weight: 700;
+  font-size: 30px;
+}
+.profiles.relatedCarp {
+  line-height: 26px;
+  display: block;
+  font-size: 14px;
+  font-weight: normal;
+  color: #000000;
+}
+.top-sec {width: 20%;text-align: center;padding-top: 50px;} 
+.profile-image > img {width:100%;}
+section.profile {
+    margin-bottom: 50px;
+} 
+
+.form-control {
+    background: #e8f0fe !important;
+    padding: 20px !important;
+    border-radius: 7px !important;
+} 
+
+label {
+    padding-bottom: 10px !important;
+    padding-left: 8px !important;
+}
+.user-email p {
+  font-size: 12px;
+}
+.relatedCar.text-center {
+  margin-top: 40px;
+ 
+}
+
+
+.bottom-sec a {
+  line-height: 39px;
+  display: flow;
+  font-size: 15px;
+  font-weight: normal;
+  color: #000000;
+  text-decoration: underline;
+}
+.bottom-sec a.signout-btn {
+  padding-top: 32px;
+  color: #86c440;
+  text-decoration: none;
+
+}
+.relatedCar p {
+  margin-left: 71px;
+  margin-bottom: 26px;
+  color: #626060;
+  font-size: 14px;
+  line-height: 26px;
+  display: block;
+}
+.relatedCar h3 {
+  margin-left: 70px;
+  font-size: 24px;
+  color: #86c440;
+  font-weight: 700;
+  line-height: 36px;
+}
+.companies {
+  background: #f6f6f6;
+  height: 100%;
+}
+.img_box {
+	padding: 35px 0px 10px 76px;
+}
+
+.profile-edit-form textarea, .profile-edit-form select, .profile-edit-form input[type] {
+  width: 100% !important;
+  margin-bottom: 10px !important;
+  font-weight: 400 !important;
+  border-radius: 5px !important;
+  border: 1px solid lightslategray !important;
+} 
+
+.fields-sec{position:relative;}
+.fields-sec.usernameclass::before {
+    background-image: url(https://consortsolutions.com/demo/car-jock/assets/images/user.png);
+} 
+.fields-sec.emailclass::before{
+        background-image: url(https://consortsolutions.com/demo/car-jock/assets/images/email.png);
+}
+.fields-sec.oldpasswordclass::before , .fields-sec.changepasswordclass::before , .fields-sec.confirmpasswordclass::before {
+        background-image: url(https://consortsolutions.com/demo/car-jock/assets/images/eye.png);
+}
+
+.fields-sec::before {
+    content: "";
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    top: 33px;
+    background-size: auto;
+    right: 7px;
+    z-index: 9;
+    color:#c9cee1;
+    background-repeat: no-repeat;
+}
+
+.profile-sec {
+  display: none;
+}
+
+.profile-sec.active {
+  display: block;
+} 
+  .mobile-view{
+        display:none;
+    }
+
+@media screen and (max-width : 767px){
+  section.profile .row {
+    display: block;
+    width: 100%;
+    margin: auto;
+  }
+  input#imageInput {
+    width: 100% !important;
+}
+section.profile .row > div {
+  flex: 0px !important;
+  max-width: 100% !important;
+}
+    .top-sec {
+    margin: auto;
+    width: 40%;
+    }
+    .profile-details .row {
+    display: block;
+    } 
+    .fields-sec {
+    padding-top: 30px;
+    }
+    .fields-sec::before{
+            top: 65px;
+            right:15px;
+    } 
+    button.btn.btn-primary {
+    margin: 18px auto 0px; }
+    .box {
+    padding-top: 30px;
+    text-align: center;
+    } 
+  .table-responsive{overflow-x: auto;}
+  .relatedCar.text-center.new_sec_add, .relatedCar.text-center.new_sec_add{width: 95% !important;margin: 30px auto !important;}
+  .relatedCar h3,.relatedCar p{margin-left: 0px;}
+  .relatedCar h3{padding-bottom:20px;}
+  .relatedCar ~ .row h2.text-center {
+    padding: 0px !important;
+}
+}
+
+
+
+  .mobile-sidebar {
+      position: fixed;
+      top: 10%;
+      left: -260px; 
+      height: 100%;
+      width: 250px;
+      transition: left 0.3s;
+      z-index:99;
+  }
+  .profile-img-box.mobile-view{
+      background-color:#fff;
+  }
+  .sidebar-toggle {
+      background-color: #333;
+      cursor: pointer;
+      padding: 10px;
+      position: absolute;
+      top: 25%;
+      left: 255px;
+  }
+  .bar {
+    width: 15px;
+    height: 20px;
+    background-color: #fff;
+    margin: 0px;
+    clip-path: polygon(0 0, 0% 100%, 100% 50%);
+    }
+  
+  .sidebar {
+      padding-top: 20px;
+      color: #fff;
+  }
+  
+
+
+.featureBox{box-shadow: 0px 0px 10px #97949426;}
+
+
+/*new css 04-11-23*/
+
+
+.relatedCar.text-center.new_sec_add {
+    text-align: left !important;
+    margin: 47px 0;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    width: 100%;
+    padding: 0px 15px 0;
+}
+.relatedCar.text-center.new_sec_add h3 {
+    padding-top: 40px;
+     margin-left: 0px   ;
+     /*padding-left: 5px;*/
+}
+.relatedCar.text-center.new_sec_add p {
+    
+     margin-left: 0px !important;
+}
+
+
+
+.row.hello_check {
+    font-size: 15px;
+    font-weight: 600 !important;
+    padding: 35px 20px;
+    border-bottom: 1px solid #e5e5e5;
+justify-content:space-between; 
+    align-items: center;
+        line-height: 32px;
+}
+
+
+
+
+button.btn.btn-primary.check_four , button.btn.btn-primary.check_three ,button.btn.btn-primary.check_two
+{
+    
+padding: 12px 20px;
+    text-align: center;
+    right: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+        color: black;
+    
+}
+
+
+button.btn.btn-primary.check_two {
+
+    background: #ffe1e1;
+    border: 1px solid #febdbd;
+}
+button.btn.btn-primary.check_three {
+    background:#dbffe9;
+    border: 1px solid #a7fcbb;
+}
+button.btn.btn-primary.check_four {
+    background: none;
+    border: 1px solid #e5e5e5;
+}
+
+
+
+
+
+    .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+div#tab2 form div select {
+    width: 100%;
+    height: 58px;
+    border: 1px solid #585858;
+    border-radius: 5px;
+    padding: 0 15px;
+    font-size: 16px;
+    color: #979797;
+        appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+       
+    
+}
+div#tab2 form div label {
+    padding-top: 20px;
+} 
+
+ .table-responsive{overflow-x: hidden !important;}
+ 
+ a.btn.btn-success {
+    color: black;
+    background: none;
+    border: 1px solid #e5e5e5;
+    width: 75%;
+}
+a.btn.btn-primary.mb-2 {
+    color: black;
+    background: #dbffe9;
+    border: 1px solid #a7fcbb;
+width: 75%;
+    
+}
+a.btn.btn-danger.mb-2 {
+    color: black;
+    background: #ffe1e1;
+    border: 1px solid #febdbd;
+width: 75%;
+    
+} 
+
+.inline-sec.flex{
+
+    align-items: center;
+    justify-content: space-between; 
+}
