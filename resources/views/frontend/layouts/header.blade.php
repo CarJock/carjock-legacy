@@ -33,7 +33,7 @@
 							<li class="{{ request()->is('/') ? 'active' : '' }}"><a href="{{route('frontend.home')}}">Find Your Next Car</a></li>
 							<li class="{{ request()->is('compare') ? 'active' : '' }}"><a href="{{route('frontend.compare')}}">Compare Vehicles </a></li>
 							<li class="{{ request()->is('forum') ? 'active' : '' }}">
-                                <a href="https://devopra.xyz/blogs">Blogs</a>
+                                <a href="{{url('/')}}/blogs">Blogs</a>
                             </li>
 						</ul>
 						<ul class="accoutNav desktop">

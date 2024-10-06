@@ -859,7 +859,7 @@
 
                      <div class="blogTxtHolder">
                         <p>{{ $posts[0]->post_content }}</p>
-                        <p><a href="https://devopra.xyz/blogs/{{ $posts[0]->post_name }}">See blog detail <i class="fas fa-chevron-circle-right"></i></a></p>
+                        <p><a href="{{url('/')}}/blogs/{{ $posts[0]->post_name }}">See blog detail <i class="fas fa-chevron-circle-right"></i></a></p>
                      </div>
             @endif
                   </div>
@@ -882,7 +882,7 @@
 
                      <div class="blogTxtHolder">
                         <p>{{ $posts[1]->post_content }}</p>
-                        <p><a href="https://devopra.xyz/blogs/{{ $posts[1]->post_name }}">See blog detail <i class="fas fa-chevron-circle-right"></i></a></p>
+                        <p><a href="{{url('/')}}/blogs/{{ $posts[1]->post_name }}">See blog detail <i class="fas fa-chevron-circle-right"></i></a></p>
                      </div>
                            </div>
                         </div>
@@ -920,7 +920,7 @@
 
                      <div class="blogTxtHolder">
                         <p>{{ $posts[2]->post_content }}</p>
-                        <p><a href="https://devopra.xyz/blogs/{{ $posts[2]->post_name }}">See blog detail <i class="fas fa-chevron-circle-right"></i></a></p>
+                        <p><a href="{{url('/')}}/blogs/{{ $posts[2]->post_name }}">See blog detail <i class="fas fa-chevron-circle-right"></i></a></p>
                      </div>
             @endif
 
@@ -942,7 +942,7 @@
 
                      <div class="blogTxtHolder">
                         <p>{{ $posts[3]->post_content }}</p>
-                        <p><a href="https://devopra.xyz/blogs/{{ $posts[3]->post_name }}">See blog detail <i class="fas fa-chevron-circle-right"></i></a></p>
+                        <p><a href="{{url('/')}}/blogs/{{ $posts[3]->post_name }}">See blog detail <i class="fas fa-chevron-circle-right"></i></a></p>
                      </div>
                @endif
 

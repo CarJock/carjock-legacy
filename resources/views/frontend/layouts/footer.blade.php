@@ -51,7 +51,7 @@
                      <li><a href="{{ route('frontend.contact') }}"><i class="far fa-chevron-double-right"></i>Contact Us</a></li>
                      <li><a href="{{ route('frontend.disclaimer') }}"><i class="far fa-chevron-double-right"></i>Disclaimer</a></li>
                      <li><a href="{{ route('frontend.faqs') }}"><i class="far fa-chevron-double-right"></i>FAQ</a></li>
-                     <li><a href="https://devopra.xyz/blogs"><i class="far fa-chevron-double-right"></i>Blogs</a></li>
+                     <li><a href="{{url('/')}}/blogs"><i class="far fa-chevron-double-right"></i>Blogs</a></li>
                      <li><a href="{{ route('frontend.search') }}"><i class="far fa-chevron-double-right"></i>Search</a></li>
                      <li><a href="{{ route('frontend.privacy-policy') }}"><i class="far fa-chevron-double-right"></i>Privacy</a></li>
                      <li><a href="{{ route('frontend.term-conditions') }}"><i class="far fa-chevron-double-right"></i>Terms & Conditions</a></li>
