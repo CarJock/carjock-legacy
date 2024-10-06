@@ -17,25 +17,46 @@
  *
  * @package WordPress
  */
+// Load environment variables from Laravel .env
+$path = __DIR__ . '/../..'; // Adjust this according to your Laravel path
+$envFile = $path . '/.env';
+if (file_exists($envFile)) {
+    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0) {
+            continue;
+        }
+        if (strpos($line, '=') !== false) {
+            [$key, $value] = explode('=', $line, 2);
+            $key = trim($key);
+            $value = trim($value);
+            putenv(sprintf('%s=%s', $key, $value));
+            $_ENV[$key] = $value;
+        }
+    }
+}
 
 // ** Database settings - You can get this info from your web host ** //
 /** The name of the database for WordPress */
-define( 'DB_NAME', 'wordpress_db' );
+define( 'DB_NAME', getenv('WP_DB_DATABASE') );
 
 /** Database username */
-define( 'DB_USER', 'wp_user' );
+define( 'DB_USER', getenv('DB_USERNAME') );
 
 /** Database password */
-define( 'DB_PASSWORD', 'password' );
+define( 'DB_PASSWORD', getenv('DB_PASSWORD') );
 
 /** Database hostname */
-define( 'DB_HOST', 'localhost' );
+define( 'DB_HOST', getenv('DB_HOST') );
 
 /** Database charset to use in creating database tables. */
 define( 'DB_CHARSET', 'utf8mb4' );
 
 /** The database collate type. Don't change this if in doubt. */
 define( 'DB_COLLATE', '' );
+
+define('FORCE_SSL_ADMIN', false);
+
 
 /**#@+
  * Authentication unique keys and salts.
