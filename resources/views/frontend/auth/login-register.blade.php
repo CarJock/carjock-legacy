@@ -39,7 +39,11 @@
                         {{ $message }}
                     </div>
                 @endif
-                <a href="{{route('frontend.facebook.login')}}" class="btn button_facebook_cus">Log in with Facebook</a>
+                <a href="{{route('frontend.facebook.login')}}" style="max-width: 35%">
+                    <img src="{{URL('continue_with_fb.png')}}" alt="Facebook Login">
+                </a>
+
+                {{-- <a href="{{route('frontend.facebook.login')}}" class="btn button_facebook_cus">Log in with Facebook</a> --}}
                 <div class="divider d-flex align-items-center my-4">
                     <p class="text-center fw-bold mx-3 mb-0">Or</p>
                 </div>

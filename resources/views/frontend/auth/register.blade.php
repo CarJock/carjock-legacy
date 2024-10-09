@@ -22,85 +22,110 @@
 
 
 
-<section class="log_new  pb-5 pt-5">
+<section class="log_new pb-5 pt-5">
     <div class="container-fluid">
         <div class="row">
             <div class="col-12 right-sec">
                 <div class="register-form" style="background: #fff !important">
                     <h2 class="text-center">Register</h2>
                     <hr>
-                    <a href="{{route('frontend.facebook.login')}}" class="btn button_facebook_cus">Sign Up with
-                        Facebook</a>
+                    <div style="text-align: center;">
+                        <a class="" href="{{route('frontend.facebook.login')}}" style="max-width: 35%; display: inline-block;">
+                            <img src="{{URL('continue_with_fb.png')}}" alt="Facebook Login">
+                        </a>
+                    </div>
+                    
                     <div class="divider d-flex align-items-center my-4">
                         <p class="text-center fw-bold mx-3 mb-0">Or</p>
                     </div>
                     <form action="{{ route('frontend.register') }}" method="POST">
                         @csrf
-                        <div class="row">
-                            <!-- Username input -->
-                            <div class="form-outline mb-4 mt-4 col-6">
-                                <label class="form-label" for="registerUsername">Name*</label>
-                                <input type="text" id="registerUsername" placeholder="Name"
-                                    class="form-control @error('name') is-invalid @enderror" name="name"
-                                    value="{{ old('name') }}" required autocomplete="name" autofocus />
-                                @error('name')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                                @enderror
-                            </div>
 
-                            <!-- Email input -->
-                            <div class="form-outline mb-4 mt-4 col-6">
-                                <label class="form-label" for="registerEmail">Email Address*</label>
-                                <input type="email" id="registerEmail" placeholder="Email"
-                                    class="form-control @error('email') is-invalid @enderror" name="email"
-                                    value="{{ old('email') }}" required autocomplete="email" />
-                                @error('email')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                                @enderror
-                            </div>
+                        <!-- Name input -->
+                        <div class="mb-4">
+                            <label class="" for="firstName">First Name*</label>
+                            <input type="text" id="firstName" placeholder="First Name"
+                                   class="form-control @error('first_name') is-invalid @enderror" name="first_name"
+                                   value="{{ old('first_name') }}" required autofocus />
+                            @error('first_name')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                            @enderror
                         </div>
 
-                        <div class="row">
-                            <!-- Username input -->
-                            <div class="form-outline mb-4 mt-4 col-6">
-                                <label class="form-label" for="Country">Location*</label>
-                                <select name="country" required="">
-                                    <option value="">Location</option>
-                                    <option value="usa">USA</option>
-                                    <option value="canada">CANADA</option>
-                                    <option value="japan">JAPAN</option>
-                                </select>
-                                @error('country')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                                @enderror
-                            </div>
+                        <div class="mb-4">
+                            <label class="" for="lastName">Last Name*</label>
+                            <input type="text" id="lastName" placeholder="Last Name"
+                                   class="form-control @error('last_name') is-invalid @enderror" name="last_name"
+                                   value="{{ old('last_name') }}" required />
+                            @error('last_name')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                            @enderror
+                        </div>
 
-                            <!-- city input -->
-                            <div class="form-outline mb-4 mt-4 col-6">
-                                <label class="form-label" for="city">City*</label>
-                                <input type="text" id="city" placeholder="City"
-                                    class="form-control @error('city') is-invalid @enderror" name="city"
-                                    value="{{ old('city') }}" required autocomplete="city" />
-                                @error('city')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                                @enderror
-                            </div>
+                        <div class="mb-4">
+                            <label class="" for="username">Username (If not entered, system will generate)</label>
+                            <input type="text" id="username" placeholder="Username"
+                                   class="form-control @error('username') is-invalid @enderror" name="username"
+                                   value="{{ old('username') }}" />
+                            @error('username')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                            @enderror
+                        </div>
+
+                        <!-- Email input -->
+                        <div class="form-outline mb-4">
+                            <label class="form-label" for="registerEmail">Email Address*</label>
+                            <input type="email" id="registerEmail" placeholder="Email"
+                                   class="form-control @error('email') is-invalid @enderror" name="email"
+                                   value="{{ old('email') }}" required autocomplete="email" />
+                            @error('email')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                            @enderror
+                        </div>
+
+                        <!-- Location input -->
+                        <div class="form-outline mb-4">
+                            <label class="form-label" for="Country">Location*</label>
+                            <select name="country" class="form-control" required>
+                                <option value="">Location</option>
+                                <option value="usa">USA</option>
+                                <option value="canada">CANADA</option>
+                                <option value="japan">JAPAN</option>
+                            </select>
+                            @error('country')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                            @enderror
+                        </div>
+
+                        <!-- City input -->
+                        <div class="form-outline mb-4">
+                            <label class="form-label" for="city">City*</label>
+                            <input type="text" id="city" placeholder="City"
+                                   class="form-control @error('city') is-invalid @enderror" name="city"
+                                   value="{{ old('city') }}" required autocomplete="city" />
+                            @error('city')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                            @enderror
                         </div>
 
                         <!-- Password input -->
                         <div class="form-outline mb-4">
                             <label class="form-label" for="registerPassword">Password</label>
                             <input type="password" id="registerPassword" placeholder="*****"
-                                class="form-control @error('password') is-invalid @enderror" name="password" required
-                                autocomplete="new-password" />
+                                   class="form-control @error('password') is-invalid @enderror" name="password" required
+                                   autocomplete="new-password" />
                             @error('password')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -108,20 +133,19 @@
                             @enderror
                         </div>
 
-                        <!-- Repeat Password input -->
+                        <!-- Confirm Password input -->
                         <div class="form-outline mb-4">
                             <label class="form-label" for="registerRepeatPassword">Confirm password</label>
-                            <input type="password" id="registerRepeatPassword" placeholder="*****" class="form-control"
-                                name="password_confirmation" required autocomplete="new-password" />
+                            <input type="password" id="registerRepeatPassword" placeholder="*****"
+                                   class="form-control" name="password_confirmation" required autocomplete="new-password" />
                         </div>
 
                         <!-- Checkbox -->
                         <div class="form-check d-flex mb-4">
                             <input class="form-check-input me-2" type="checkbox" value="" id="registerCheck" checked
-                                aria-describedby="registerCheckHelpText" />
+                                   aria-describedby="registerCheckHelpText" />
                             <label class="form-check-label mt-2 ml-2" for="registerCheck">
-                                I agree to the <a style="text-decoration:underline"
-                                    href="{{route('frontend.term-conditions')}}">Terms & Policy</a>
+                                I agree to the <a style="text-decoration: underline" href="{{route('frontend.term-conditions')}}">Terms & Policy</a>
                             </label>
                         </div>
                         <button type="submit" class="register-btn">Register</button>
@@ -132,6 +156,7 @@
         </div>
     </div>
 </section>
+
 
 @endsection()
 
@@ -171,7 +196,7 @@ section.log_new .col-6.left-sec {
     margin: 30px auto 50px;
     border-radius: 10px;
     box-shadow: 1px 2px 16px #E3E3E3;
-    text-align: center;
+    /* text-align: center; */
 }
 
 .login-form h2 {
