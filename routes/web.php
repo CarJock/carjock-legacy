@@ -131,7 +131,7 @@ Route::group([
         return Socialite::driver('facebook')->redirect();
     })->name('facebook.login');
     Route::get('/auth/facebook/callback', 'UserController@facebook');
-    Route::get('account', 'UserController@index')->name('account');
+    Route::get('account', 'UserController@index')->name('account')->middleware(['guest']);
     Route::post('vehicle/ajax/favourite', 'UserController@favourite')->name('favourite');
     Route::post('vehicle/ajax/comparisions', 'UserController@saveCompare')->name('savecomparisions');
 

@@ -89,7 +89,7 @@
 
     <div class="blog-container">
         <section id="featured-blog">
-            <img src="https://pop.carjock.com/blogs/wp-content/uploads/2024/04/Group-851-1-960x301.jpg"
+            <img src="{{url('/storage/blogs/dummy_blog.jpg')}}"
                 alt="Featured Blog Image" class="featured-image">
             <h1>Exploring Car Sales Growth in the USA</h1>
             <p>The U.S. automobile market has experienced significant growth over the past decade, with electric vehicles
