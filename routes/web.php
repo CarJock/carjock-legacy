@@ -182,3 +182,7 @@ Route::group([
         Route::get('garage/delete/{id}', 'UserController@deleteFromGarage')->name('garage.delete');
     });
 });
+
+Route::group([], function(){
+    Route::get('/blogs', 'BlogController@index')->name('blogs.index');
+});
