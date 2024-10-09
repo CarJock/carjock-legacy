@@ -185,4 +185,7 @@ Route::group([
 
 Route::group([], function(){
     Route::get('/blogs', 'BlogController@index')->name('blogs.index');
+    Route::get('/data-deletion-instructions', function(){
+        return view('data-deletion-instructions');
+    })->name('data-deletion-instructions');
 });
