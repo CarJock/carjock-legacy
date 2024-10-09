@@ -105,20 +105,20 @@
 
         <section id="posts">
             <article>
-                <img src="https://pop.carjock.com/blogs/wp-content/uploads/2024/04/Group-851-960x301.jpg" alt="Car Image">
+                <img src="{{url('/storage/blogs/dummy_blog2.png')}}" alt="Car Image">
                 <h2>THE BEST SPECIFICATION CAR 2017</h2>
                 <p>April 9, 2024 | Posted by admin</p>
                 <a href="#">View Post</a>
             </article>
 
             <article>
-                <img src="https://pop.carjock.com/blogs/wp-content/uploads/2024/04/Group-851-2-960x301.jpg" alt="Car Image">
+                <img src="{{url('/storage/blogs/dummy_blog3.jpg')}}" alt="Car Image">
                 <h2>2024’s Best Cars to Drive</h2>
                 <p>April 10, 2024 | Posted by admin</p>
                 <a href="#">View Post</a>
             </article>
             <article>
-                <img src="https://pop.carjock.com/blogs/wp-content/uploads/2024/04/Group-851-1-960x301.jpg" alt="Car Image">
+                <img src="{{url('/storage/blogs/dummy_blog4.jpg')}}" alt="Car Image">
                 <h2>2024’s Best Cars to Drive</h2>
                 <p>April 10, 2024 | Posted by admin</p>
                 <a href="#">View Post</a>
