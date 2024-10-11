@@ -2,22 +2,23 @@
 
 namespace App\Http\Controllers\Frontend;
 
-use App\Http\Controllers\Controller;
-use App\Models\Division;
-use App\Models\EngineType;
-use App\Models\FuelType;
+use App\Models\Ads;
 use App\Models\Model;
 use App\Models\Style;
-use App\Models\Vehicle;
-use App\Models\VehicleImage;
-use App\Models\PageContent;
 use App\Models\Banner;
-use App\Models\Ads;
 use App\Models\AdsLogs;
-use App\Utils\PaginateCollection;
+use App\Models\Vehicle;
+use App\Models\Division;
+use App\Models\FuelType;
+use App\Models\EngineType;
+use App\Models\PageContent;
+use App\Models\VehicleImage;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Models\WordPressPost;
+use App\Utils\PaginateCollection;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 
 class HomeController extends Controller
 {
@@ -47,7 +48,10 @@ class HomeController extends Controller
         #$featured_main = Vehicle::where('feature', 'yes')->where('garage', '!=', 1)->inRandomOrder()->limit(4)->get();
         #$featured_main_one = Vehicle::whereNotIn('id', $featured->push($featured_main->pluck('id'))->first()->toArray())->where('garage', '!=', 1)->inRandomOrder()->where('feature', 'yes')->limit(4)->get();
 
-        $featured = Vehicle::where('feature', 'yes')->where('garage', '!=', 1)->take(100)->get();
+        $featured = Cache::remember('featured_vehicles', 60, function () {
+            return Vehicle::where('feature', 'yes')->where('garage', '!=', 1)->take(100)->get();
+        });
+        
         // Get random unique values for the first array
         if (count($featured) > 4) {
             $randomValuesArray1 = $featured->random(4);
