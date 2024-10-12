@@ -16,7 +16,6 @@ use App\Models\VehicleImage;
 use Illuminate\Http\Request;
 use App\Models\WordPressPost;
 use App\Utils\PaginateCollection;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
 
@@ -51,7 +50,7 @@ class HomeController extends Controller
         $featured = Cache::remember('featured_vehicles', 60, function () {
             return Vehicle::where('feature', 'yes')->where('garage', '!=', 1)->take(100)->get();
         });
-        
+
         // Get random unique values for the first array
         if (count($featured) > 4) {
             $randomValuesArray1 = $featured->random(4);
@@ -90,11 +89,11 @@ class HomeController extends Controller
                 ],
             ]);
         }
-        $wp_posts = [];//WordPressPost::getFeaturedPost();
+        $wp_posts = []; //WordPressPost::getFeaturedPost();
         foreach ($wp_posts as &$post) {
             $post->post_content = $this->clean_wp_content($post->post_content);
         }
-        
+
         return view('frontend.home', [
             'years' => [date('Y') - 1, date('Y')],
             'makes' => isset(request()->year) ? Division::where('year', request()->year)->get() : '',
@@ -183,7 +182,8 @@ class HomeController extends Controller
                 'Van' => 'Full-size Cargo Van|Full-size Passenger Van',
                 'Station Wagon' => 'Station Wagon',
                 'Specialty Vehicle' => 'Specialty Vehicle'
-            ], 'engine_types' => [
+            ],
+            'engine_types' => [
                 'Electric' => 'Electric Motor',
                 '3 Cylinder' => '3 Cylinder Engine',
                 '4 Cylinder' => '4 Cylinder Engine',
@@ -191,7 +191,8 @@ class HomeController extends Controller
                 '8 Cylinder' => '8 Cylinder Engine',
                 '10 Cylinder' => '10 Cylinder Engine',
                 '12 Cylinder' => '12 Cylinder Engine',
-            ], 'fuel_types' => [
+            ],
+            'fuel_types' => [
                 'Gas' => 'Gasoline Fuel|Flex Fuel Capability',
                 'Electric' => 'Electric Fuel System',
                 'Plugin Hybrid' => 'Plug-In Electric/Gas',
@@ -209,6 +210,7 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
+
     public function search()
     {
         $drivetrain = ['Front Wheel Drive', 'All Wheel Drive', 'Rear Wheel Drive', 'Four Wheel Drive'];
@@ -249,84 +251,89 @@ class HomeController extends Controller
             $sort_type = 'desc';
         }
 
-        $vehicles = Vehicle::where('garage', 0)
-            ->where('pricing', '!=', 0);
+        // Generate a unique cache key based on the search parameters
+        $cacheKey = 'vehicles_search_' . md5(json_encode(request()->all()));
 
-        if ($year) {
-            $vehicles->where('name', 'like', '%' . $year . '%');
-        } else {
-            $vehicles->where(function ($query) {
-                $query->where('name', 'like', '%2023%')
-                      ->orWhere('name', 'like', '%2024%');
-            });
-        }
+        // Check if the results for this search are already cached
+        $vehicles = Cache::remember($cacheKey, now()->addDays(30), function () use ($year, $make, $model, $up_range, $down_range, $find, $search, $sort, $sort_type) {
+            $vehiclesQuery = Vehicle::where('garage', 0)
+                ->where('pricing', '!=', 0);
 
-        if ($make) {
-            $vehicles->where('division', $make);
-        }
-
-        if ($model) {
-            $vehicles->where('name', 'like', '%' . $model . '%');
-        }
-
-        if (is_array($up_range) && count($up_range) > 0) {
-            foreach ($up_range as $key => $value) {
-                if ($key == 'cargo_volume') {
-                    $key = 'cargo_volume_to_seat_1';
-                }
-                $vehicles->where($key, '>', (int)$value);
+            if ($year) {
+                $vehiclesQuery->where('name', 'like', '%' . $year . '%');
+            } else {
+                $vehiclesQuery->where(function ($query) {
+                    $query->where('name', 'like', '%2023%')
+                        ->orWhere('name', 'like', '%2024%');
+                });
             }
-        }
 
-        if (is_array($down_range) && count($down_range) > 0) {
-            foreach ($down_range as $key => $value) {
-                $vehicles->where($key, '<', (int)$value);
+            if ($make) {
+                $vehiclesQuery->where('division', $make);
             }
-        }
 
-        if (is_array($find) && count($find) > 0) {
-            foreach ($find as $key => $value) {
-                if ($key === 'sun_moon_roof') {
-                    $vehicles->where('data', 'like', '%/Moonroof%');
-                } else {
-                    $vehicles->where('data', 'like', '%' . $value . '%');
+            if ($model) {
+                $vehiclesQuery->where('name', 'like', '%' . $model . '%');
+            }
+
+            if (is_array($up_range) && count($up_range) > 0) {
+                foreach ($up_range as $key => $value) {
+                    if ($key == 'cargo_volume') {
+                        $key = 'cargo_volume_to_seat_1';
+                    }
+                    $vehiclesQuery->where($key, '>', (int)$value);
                 }
             }
-        }
 
-        if (is_array($search) && count($search) > 0) {
-            foreach ($search as $key => $value) {
-                if ($key === 'body_type') {
-                    $vehicles->whereIn('body_type', explode('|', $value));
-                }
-
-                if ($key === 'fuel_type') {
-                    $vehicles->whereHas('fuel_type', function ($query) use ($value) {
-                        $query->whereIn('name', explode('|', $value));
-                    })
-                        ->where('fuel_type_id', '!=', 0)
-                        ->whereNotNull('fuel_type_id');
-                }
-
-                if ($key === 'drive_train') {
-                    $vehicles->where('data', 'like', '%' . $value . '%');
-                }
-
-                if ($key === 'max_passenger') {
-                    $vehicles->where('seating', $value);
-                }
-
-                if ($key === 'price' && $value !== '$') {
-                    $vehicles->where('pricing', '<=', (int)str_replace('$', '', $value));
+            if (is_array($down_range) && count($down_range) > 0) {
+                foreach ($down_range as $key => $value) {
+                    $vehiclesQuery->where($key, '<', (int)$value);
                 }
             }
-        }
 
-        $vehicles = $vehicles->orderBy('created_at', 'desc')
-            ->orderBy($sort, $sort_type)
-            ->paginate(12)
-            ->withQueryString();
+            if (is_array($find) && count($find) > 0) {
+                foreach ($find as $key => $value) {
+                    if ($key === 'sun_moon_roof') {
+                        $vehiclesQuery->where('data', 'like', '%/Moonroof%');
+                    } else {
+                        $vehiclesQuery->where('data', 'like', '%' . $value . '%');
+                    }
+                }
+            }
 
+            if (is_array($search) && count($search) > 0) {
+                foreach ($search as $key => $value) {
+                    if ($key === 'body_type') {
+                        $vehiclesQuery->whereIn('body_type', explode('|', $value));
+                    }
+
+                    if ($key === 'fuel_type') {
+                        $vehiclesQuery->whereHas('fuel_type', function ($query) use ($value) {
+                            $query->whereIn('name', explode('|', $value));
+                        })
+                            ->where('fuel_type_id', '!=', 0)
+                            ->whereNotNull('fuel_type_id');
+                    }
+
+                    if ($key === 'drive_train') {
+                        $vehiclesQuery->where('data', 'like', '%' . $value . '%');
+                    }
+
+                    if ($key === 'max_passenger') {
+                        $vehiclesQuery->where('seating', $value);
+                    }
+
+                    if ($key === 'price' && $value !== '$') {
+                        $vehiclesQuery->where('pricing', '<=', (int)str_replace('$', '', $value));
+                    }
+                }
+            }
+
+            return $vehiclesQuery->orderBy('created_at', 'desc')
+                ->orderBy($sort, $sort_type)
+                ->paginate(12)
+                ->withQueryString();
+        });
 
         $models = '';
         if (isset(request()->make)) {
@@ -334,6 +341,7 @@ class HomeController extends Controller
                 $query->where('name', request()->make);
             })->groupBy('name')->get();
         }
+
         return view('frontend.search', [
             'vehicles' => $vehicles,
             'years' => [date('Y') - 1, date('Y')],
@@ -347,6 +355,7 @@ class HomeController extends Controller
         ]);
     }
 
+
     public function clean_wp_content($content)
     {
         // Remove wp:paragraph comments
@@ -355,7 +364,7 @@ class HomeController extends Controller
         $content = preg_replace('/<p>/', '', $content);
         $content = preg_replace('/<\/p>/', '', $content);
         $content = str_replace('<!-- /wp:paragraph -->', '', $content);
-        
+
         return $content;
     }
 }
