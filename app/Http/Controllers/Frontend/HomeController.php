@@ -260,11 +260,11 @@ class HomeController extends Controller
                 ->where('pricing', '!=', 0);
 
             if ($year) {
-                $vehiclesQuery->where('name', 'like', '%' . $year . '%');
+                $vehiclesQuery->where('year', $year);
             } else {
                 $vehiclesQuery->where(function ($query) {
-                    $query->where('name', 'like', '%2023%')
-                        ->orWhere('name', 'like', '%2024%');
+                    $query->where('year', '2023')
+                        ->orWhere('year', '2024');
                 });
             }
 
