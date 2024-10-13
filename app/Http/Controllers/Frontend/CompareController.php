@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Frontend;
 
-use App\Http\Controllers\Controller;
-use App\Models\Vehicle;
-use App\Models\Banner;
 use App\Models\Ads;
+use App\Models\Banner;
+use App\Models\Vehicle;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 
 class CompareController extends Controller
 {
@@ -27,20 +28,14 @@ class CompareController extends Controller
      */
     public function index()
     {
-        // Get vehicles with "2023" in their names
-        $vehicles2023 = Vehicle::select('id', 'name')
-            ->where('name', 'like', '%2023%')
-            ->orderBy('name', 'asc')
-            ->get();
-
-        // Get vehicles with "2024" in their names
-        $vehicles2024 = Vehicle::select('id', 'name')
-            ->where('name', 'like', '%2024%')
-            ->orderBy('name', 'asc')
-            ->get();
-
-        // Merge the collections
-        $vehicles = $vehicles2024->merge($vehicles2023);
+        // Cache the vehicles for 1 hour
+        $vehicles = Cache::remember('vehicles_2023_2024', 60 * 60, function () {
+            return Vehicle::select('id', 'name')
+                ->whereIn('year', ['2023', '2024'])
+                ->orderBy('year', 'asc')
+                ->orderBy('name', 'asc')
+                ->get();
+        });
         $banner = Banner::where("page_id", 2)->first();
 
         return view('frontend.compare', compact('vehicles', 'banner'));
