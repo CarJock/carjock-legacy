@@ -1,12 +1,7 @@
 <div class="row dragableslidingcars">
     <div class="col-md-4 carcard firstcomparision" style="display: none">
         <div class="carselector">
-            <select class="carselectoroption" name="state">
-                <option value="0">Select Vehicle</option>
-                @foreach($vehicles as $vehicle)
-                    <option value="{{ $vehicle->id }}">{{ $vehicle->name }}</option>
-                @endforeach
-            </select>
+            <select class="carselectoroption" name="state"></select>
         </div>
         <div class="inner">
             <div class="imageholder">
@@ -56,12 +51,7 @@
     </div>
     <div class="col-md-4 carcard secondcomparision" style="display: none">
         <div class="carselector">
-            <select class="carselectoroption" name="state">
-                <option value="0">Select Vehicle</option>
-                @foreach($vehicles as $vehicle)
-                    <option value="{{ $vehicle->id }}">{{ $vehicle->name }}</option>
-                @endforeach
-            </select>
+            <select class="carselectoroption" name="state"></select>
         </div>
         <div class="inner">
             <div class="imageholder">
@@ -117,13 +107,7 @@
     </div>
     <div class="col-md-4 carcard thirdcomparision" style="display: none">
         <div class="carselector">
-            <select class="carselectoroption" name="state">
-                <option value="0">Select Vehicle</option>
-                
-                @foreach($vehicles as $vehicle)
-                    <option value="{{ $vehicle->id }}">{{ $vehicle->name }}</option>
-                @endforeach
-            </select>
+            <select class="carselectoroption" name="state"></select>
         </div>
         <div class="inner">
             <div class="imageholder">
@@ -179,13 +163,7 @@
     </div>
     <div class="col-md-4 carcard fourthcomparision" style="display: none">
         <div class="carselector">
-            <select class="carselectoroption" name="state">
-                <option value="0">Select Vehicle</option>
-                
-                @foreach($vehicles as $vehicle)
-                    <option value="{{ $vehicle->id }}">{{ $vehicle->name }}</option>
-                @endforeach
-            </select>
+            <select class="carselectoroption" name="state"></select>
         </div>
         <div class="inner">
             <div class="imageholder">
@@ -241,13 +219,7 @@
     </div>
     <div class="col-md-4 carcard fifthcomparision"  style="display: none">
         <div class="carselector">
-            <select class="carselectoroption" name="state">
-                <option value="0">Select Vehicle</option>
-                
-                @foreach($vehicles as $vehicle)
-                    <option value="{{ $vehicle->id }}">{{ $vehicle->name }}</option>
-                @endforeach
-            </select>
+            <select class="carselectoroption" name="state"></select>
         </div>
         <div class="inner">
             <div class="imageholder">
@@ -303,13 +275,7 @@
     </div>
     <div class="col-md-4 carcard sixthcomparision" style="display: none">
         <div class="carselector">
-            <select class="carselectoroption" name="state">
-                <option value="0">Select Vehicle</option>
-                
-                @foreach($vehicles as $vehicle)
-                    <option value="{{ $vehicle->id }}">{{ $vehicle->name }}</option>
-                @endforeach
-            </select>
+            <select class="carselectoroption" name="state"></select>
         </div>
         <div class="inner">
             <div class="imageholder">

@@ -140,6 +140,9 @@ Route::group([
     Route::get('vehicle/{id}', 'HomeController@show')->name('vehicle');
     Route::get('ajax/query', 'HomeController@query')->name('ajax.query');
     Route::get('ajax/query/chromedata', 'UserController@query')->name('ajax.query.chromedata');
+    Route::get('/api/cars', 'CompareController@searchCars');
+    Route::get('/api/cars/{id}', 'CompareController@getCarById');
+
 
     Route::get('vehicle/ajax/{id}', 'CompareController@show')->name('vehicle.detail');
     Route::get('compare', 'CompareController@index')->name('compare');

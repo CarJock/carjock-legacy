@@ -28,18 +28,44 @@ class CompareController extends Controller
      */
     public function index()
     {
-        // Cache the vehicles for 1 hour
-        $vehicles = Cache::remember('vehicles_2023_2024', 60 * 60, function () {
-            return Vehicle::select('id', 'name')
-                ->whereIn('year', ['2023', '2024'])
-                ->orderBy('year', 'asc')
-                ->orderBy('name', 'asc')
-                ->get();
-        });
         $banner = Banner::where("page_id", 2)->first();
 
-        return view('frontend.compare', compact('vehicles', 'banner'));
+        return view('frontend.compare', compact('banner'));
     }
+
+    public function searchCars(Request $request)
+    {
+        $search = $request->input('search'); // The search term
+        $page = $request->input('page', 1);  // Current page, default to 1
+        $perPage = 10; // Number of items per page
+
+        // Query the cars table, filtering by the search term
+        $query = Vehicle::where('name', 'like', '%' . $search . '%')->with('user');
+
+        // Get the results for the current page
+        $cars = $query->paginate($perPage, ['*'], 'page', $page);
+
+        // Transform the data for select2
+        $results = [
+            'items' => $cars->items(),
+            'hasMore' => $cars->hasMorePages()
+        ];
+
+        return response()->json($results);
+    }
+
+    public function getCarById($id)
+    {
+        $car = Vehicle::find($id);
+
+        if ($car) {
+            return response()->json($car);
+        } else {
+            return response()->json(['error' => 'Car not found'], 404);
+        }
+    }
+
+
 
 
 

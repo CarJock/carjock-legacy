@@ -36,6 +36,19 @@
         async="async"></script>
     @stack('styles')
     <style>
+        /* Define initial state for hidden elements */
+        .page-content {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        /* Define visible state */
+        .page-content.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         .hidesocial {
             display: none;
             background: #fff;
@@ -104,8 +117,9 @@
         <section class="{{ $class }}">
     @endif
     @include('frontend.layouts.header')
-
-    @yield('content')
+    <div class="page-content" id="pageContent">
+        @yield('content')
+    </div>
 
     @include('frontend.layouts.footer')
 
@@ -140,6 +154,10 @@
 
 
     <script>
+        $(document).ready(function() {
+            // Add visible class to the content when the page is loaded
+            $('#pageContent').addClass('visible');
+        });
         new WOW().init();
         $(document).on("click", '.showsocial', function(event) {
             $('.hidesocial').stop(true, true).show(400);
