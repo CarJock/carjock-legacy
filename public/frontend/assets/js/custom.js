@@ -1279,10 +1279,11 @@ $(window).on('load', function () {
         }
 
     })
+    
 
     $('.carselectoroption').select2({
         ajax: {
-            url: '/carjock/public/api/cars',  // The endpoint where your data comes from
+            url: baseURL + '/api/cars',  // The endpoint where your data comes from
             dataType: 'json',
             delay: 250,        // Add delay to reduce the number of requests
             data: function (params) {
