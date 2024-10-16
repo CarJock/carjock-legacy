@@ -46,11 +46,9 @@ return [
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DATABASE_URL'),
-            'read' => [
-                'host' => env('DB_HOST_READER', '127.0.0.1'),
-            ],
-            'write' => [
-                'host' => env('DB_HOST_WRITER', '127.0.0.1'),
+            'host' => [
+                'read' => env('DB_HOST_READER', '127.0.0.1'),
+                'write' => env('DB_HOST_WRITER', '127.0.0.1'),
             ],
             'port' => env('DB_PORT', '3306'),
             'database' => env('DB_DATABASE', 'forge'),
