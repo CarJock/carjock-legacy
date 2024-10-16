@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Model;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Style;
 use App\Models\Setting;
+use App\Models\Division;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class SettingController extends Controller
 {
@@ -15,7 +17,9 @@ class SettingController extends Controller
     public function create()
     {
         return view('admin.setting.index', [
-            'setting' => Setting::all()
+            'setting' => Setting::all(),
+            'divisions' => Division::all(),
+            // 'styles' => Models::where('dump', 0)->get(),
         ]);
     }
 

@@ -42,4 +42,5 @@ Route::group([
     Route::get('/vehicle-model/{id}', 'VehicleModelController@edit')->name('vehicle-model.edit');
     Route::patch('/vehicle-model', 'VehicleModelController@update')->name('vehicle-model.update');
     Route::delete('/vehicle-model/{id}', 'VehicleModelController@destroy')->name('vehicle-model.destroy');
+    Route::post('/chromedata/jobs', 'ChromeDataController@handleJob')->name('chromedata.job');
 });

@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Str;
 
-return [
+$cnf = [
 
     /*
     |--------------------------------------------------------------------------
@@ -161,3 +161,19 @@ return [
     ],
 
 ];
+
+if(env('APP_ENV' == 'staging')) {
+
+    unset($cnf['connections']['mysql']['host']);
+    
+    $cnf['connections']['mysql'] = [
+        'read' => [
+            'host' => env('DB_HOST_READER', '127.0.0.1'),
+        ],
+        'write' => [
+            'host' => env('DB_HOST_WRITER', '127.0.0.1'),
+        ],
+    ];
+}
+
+return $cnf;
