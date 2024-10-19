@@ -19,10 +19,12 @@ class Vehicle extends Model
      */
     protected $fillable = [
         'name',
+        'year',
         'division',
         'model',
         'style',
         'style_id',
+        'style_number',
         'fuel_type_id',
         'engine_type_id',
         'body_type',

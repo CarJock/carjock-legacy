@@ -19,7 +19,10 @@ class SettingController extends Controller
         return view('admin.setting.index', [
             'setting' => Setting::all(),
             'divisions' => Division::all(),
-            // 'styles' => Models::where('dump', 0)->get(),
+            'models' => null,
+            'styles' => null,
+            'selectedDivisionName' => null,
+            'selectedModelName' => null,
         ]);
     }
 

@@ -63,7 +63,8 @@
                                 <!-- Year Field with Value Retention and Validation Error Display -->
                                 <div class="mb-3">
                                     <label class="form-label">Year</label>
-                                    <select name="year" class="form-control @error('year') is-invalid @enderror">
+                                    <select name="year" id="year"
+                                        class="form-control @error('year') is-invalid @enderror">
                                         <option value="">Select Year</option>
                                         <option value="2020" {{ old('year') == '2020' ? 'selected' : '' }}>2020</option>
                                         <option value="2021" {{ old('year') == '2021' ? 'selected' : '' }}>2021</option>
@@ -73,46 +74,108 @@
                                         <option value="2025" {{ old('year') == '2025' ? 'selected' : '' }}>2025</option>
                                         <option value="2026" {{ old('year') == '2026' ? 'selected' : '' }}>2026</option>
                                     </select>
-
                                     @error('year')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
 
-                                <!-- Division Field with Value Retention and Validation Error Display -->
+                                <!-- Division Selection -->
                                 <div class="mb-3">
                                     <label class="form-label">Divisions / Make</label>
-                                    <select name="division" class="form-control @error('division') is-invalid @enderror">
+                                    <select id="division" name="division"
+                                        class="form-control @error('division') is-invalid @enderror">
                                         <option value="all">All Divisions</option>
-                                        @foreach ($divisions as $division)
-                                            <option value="{{ $division->id }}"
-                                                {{ old('division') == $division->id ? 'selected' : '' }}>
-                                                {{ $division->name }}
-                                            </option>
-                                        @endforeach
                                     </select>
-
+                                    <button id="update-divisions" class="btn btn-sm btn-primary mt-1 float-end"
+                                        type="button" style="display: none">
+                                        Fetch Divisions
+                                    </button>
+                                    <small id="division-count" class="text-muted"></small>
+                                    <!-- Placeholder for division count -->
                                     @error('division')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
 
-                                <!-- Free Pull Checkbox with Value Retention -->
-                                <div class="mb-3 form-check">
-                                    <input type="checkbox" class="form-check-input" id="freePull" name="free_pull"
-                                        value="1" {{ old('free_pull') ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="freePull">Pull 1000 free vehicles for the current
-                                        month</label>
+                                <!-- Model Selection -->
+                                <div class="mb-3">
+                                    <label class="form-label">Models</label>
 
-                                    @error('free_pull')
+                                    <select id="model" name="model"
+                                        class="form-control @error('model') is-invalid @enderror">
+                                        <option value="">Select Model</option>
+                                    </select>
+                                    <button id="update-models" class="btn btn-sm btn-primary mt-1 float-end" type="button"
+                                        style="display: none;">
+                                        Fetch Models
+                                    </button>
+
+                                    <small id="model-count" class="text-muted"></small>
+                                    @error('model')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
 
-                                <button type="submit" class="btn btn-primary">Pull Data</button>
+
+                                <!-- Style Selection -->
+                                <div class="mb-3">
+                                    <label class="form-label">Styles / Variants</label>
+                                    <select id="style" name="style[]" multiple
+                                        class="form-control @error('style') is-invalid @enderror">
+                                        <option value="">Select Style</option>
+                                    </select>
+                                    <button id="update-styles" class="btn btn-sm btn-primary mt-1 float-end" type="button"
+                                        style="display: none">
+                                        Fetch Styles
+                                    </button>
+                                    <small id="style-count" class="text-muted"></small> <!-- Placeholder for style count -->
+                                    @error('style')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Vehicles</label>
+                                    <select id="vehicle" name="vehicle[]" multiple
+                                        class="form-control @error('vehicle') is-invalid @enderror">
+                                    </select>
+                                    <small id="vehicle-count" class="text-muted"></small>
+                                    <!-- Placeholder for style count -->
+                                    @error('style')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div id="update-vehicle" style="display: none">
+
+                                    <!-- Vehicles Limit Input -->
+                                    <div class="col-md-12">
+                                        <input type="number" name="limit" id="limit"
+                                            class="form-control" min="1"
+                                            placeholder="Enter vehicles limit">
+                                    </div>
+
+                                    <!-- Free Pull Checkbox with Value Retention -->
+                                    <div class="col-md-12">
+                                        <div class="form-check mt-3">
+                                            <input type="checkbox" checked class="form-check-input" id="withImages"
+                                                name="withImages">
+                                            <label class="form-check-label" for="withImages">With Images</label>
+                                        </div>
+                                    </div>
+                                    <!-- Fetch Vehicles Button -->
+                                    <div class="col-md-12">
+                                        <button class="btn btn-sm btn-primary mt-2" id="vehicle-update" type="button" style="width: auto; width:100%">
+                                            Fetch Vehicles
+                                        </button>
+                                    </div>
+
+                                </div>
+
+                                <!-- Car Pull Limit Input -->
                             </form>
                         </div>
                     </div>
+
 
 
 

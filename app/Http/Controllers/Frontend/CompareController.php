@@ -6,6 +6,7 @@ use App\Models\Ads;
 use App\Models\Banner;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
 
@@ -29,9 +30,34 @@ class CompareController extends Controller
     public function index()
     {
         $banner = Banner::where("page_id", 2)->first();
+        $garageVehicles = [];
 
-        return view('frontend.compare', compact('banner'));
+        // Pass the garage vehicles to the view
+        return view('frontend.compare', compact('banner', 'garageVehicles'));
     }
+
+    public function getGarageVehicles(Request $request)
+    {
+        // Check if user is logged in
+        if (auth()->check()) {
+            // Get the logged-in user's ID
+            $userId = auth()->id();
+
+            // Retrieve vehicles where the type is 'garage' for the logged-in user
+            $garageVehicles = DB::table('user_vehicle')
+                ->where('user_id', $userId)
+                ->where('type', 'garage')
+                ->join('vehicles', 'vehicles.id', '=', 'user_vehicle.vehicle_id')
+                ->select('vehicles.*')
+                ->get();
+        }
+
+        return response()->json($garageVehicles->map(function ($uv) {
+            return ['id' => $uv->id, 'text' => $uv->name];
+        }));
+    }
+
+
 
     public function searchCars(Request $request)
     {
@@ -39,8 +65,11 @@ class CompareController extends Controller
         $page = $request->input('page', 1);  // Current page, default to 1
         $perPage = 10; // Number of items per page
 
-        // Query the cars table, filtering by the search term
-        $query = Vehicle::where('name', 'like', '%' . $search . '%')->with('user');
+        // Use full-text search on the 'name' column
+        $query = Vehicle::selectRaw("*, MATCH(name) AGAINST(? IN BOOLEAN MODE) as relevance", [$search])
+            ->whereRaw("MATCH(name) AGAINST(? IN BOOLEAN MODE)", [$search])
+            ->with('user')
+            ->orderByDesc('relevance'); // Order by relevance score
 
         // Get the results for the current page
         $cars = $query->paginate($perPage, ['*'], 'page', $page);
@@ -53,6 +82,7 @@ class CompareController extends Controller
 
         return response()->json($results);
     }
+
 
     public function getCarById($id)
     {

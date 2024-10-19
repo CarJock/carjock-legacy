@@ -1278,147 +1278,192 @@ $(window).on('load', function () {
             DeleteAllVehiclesDataFromLocalStorage(); //deleting comparisions from localstorage
         }
 
-    })
-    
+    });
 
-    $('.carselectoroption').select2({
-        ajax: {
-            url: baseURL + '/api/cars',  // The endpoint where your data comes from
-            dataType: 'json',
-            delay: 250,        // Add delay to reduce the number of requests
-            data: function (params) {
-                return {
-                    search: params.term, // The search term entered by the user
-                    page: params.page || 1 // Pagination, if your API supports it
-                };
-            },
-            processResults: function (data, params) {
-                params.page = params.page || 1;
-                return {
-                    results: data.items.map(function (car) {  // Map the data into select2 format
+
+    const prePopulatedItems = [
+        { id: 1, text: 'Toyota Camry', data: { id: 1, name: 'Toyota Camry' } },
+        { id: 2, text: 'Honda Accord', data: { id: 2, name: 'Honda Accord' } },
+        { id: 3, text: 'Ford Focus', data: { id: 3, name: 'Ford Focus' } }
+    ];
+
+    // When the dropdown is opened, show the pre-populated items
+    $('.carselectoroption').on('select2:open', function () {
+        const dropdown = $('.select2-results__options'); // The dropdown where items are displayed
+
+        // Prepend the pre-populated items when opening the dropdown
+        if (dropdown.find('li').length === 0) { // If no items are present in the dropdown
+            prePopulatedItems.forEach(function (item) {
+                // Append each pre-populated item to the dropdown
+                const $option = $('<li class="select2-results__option" role="option" aria-selected="false"></li>')
+                    .text(item.text)
+                    .attr('data-select2-id', item.id)
+                    .on('click', function () { // Handle the selection of pre-populated items
+                        $('.carselectoroption').val(item.id).trigger('change');
+                    });
+                dropdown.append($option);
+            });
+        }
+    });
+
+    $.ajax({
+        url: baseURL + '/api/garage-vehicles', // Your new endpoint
+        method: 'GET',
+        dataType: 'json',
+        success: function (garageVehicles) {
+            $('.carselectoroption').select2({
+                ajax: {
+                    url: baseURL + '/api/cars',  // The endpoint for searching cars
+                    dataType: 'json',
+                    delay: 200,        // Add delay to reduce the number of requests
+                    data: function (params) {
                         return {
-                            id: car.id,
-                            text: car.name, // The field to display in the dropdown
-                            data: car // The field to display in the dropdown
+                            search: params.term, // The search term entered by the user
+                            page: params.page || 1 // Pagination, if your API supports it
                         };
-                    }),
-                    pagination: {
-                        more: data.hasMore // Check if there are more pages of results
+                    },
+                    processResults: function (data, params) {
+                        params.page = params.page || 1;
+                        if (data.items.length) {
+                            return {
+                                results: data.items.map(function (car) {  // Map the data into select2 format
+                                    return {
+                                        id: car.id,
+                                        text: car.name, // The field to display in the dropdown
+                                        data: car
+                                    };
+                                }),
+                                pagination: {
+                                    more: data.hasMore // Check if there are more pages of results
+                                }
+                            };
+                        } else {
+
+                            return {
+                                results: garageVehicles, // Only show pre-populated items
+                                pagination: {
+                                    more: false // No more results since it's not a search
+                                }
+                            };
+                        }
+                    },
+                    cache: true // Cache the results for faster subsequent queries
+                },
+                minimumInputLength: 0, // Start searching after entering 2 or more characters
+                placeholder: 'Search for a vehicle', // Placeholder text
+                allowClear: true // Option to clear the selection
+            })
+                .on('change', function (e) {
+                    $('.resetfiltersettings').fadeIn();
+                    var selectedData = $(this).select2('data');
+
+                    if (Array.isArray(selectedData) && selectedData.length > 0) {
+                        var carData = selectedData[0];
+                        var ID = carData.id;
+                        var name = carData.text;
+                        var carFullData = carData.data; // Contains all car info
+
+                    } else {
+                        var name = 'N/A';
+                        var ID = 0;
+                        console.log('selectedData is either not an array or it is empty.');
                     }
-                };
-            },
-            cache: true // Cache the results for faster subsequent queries
+
+                    if (ID == 0) return false;
+                    var currentState = $(this).parent().next();
+
+                    if (name !== 'Select Vehicle') {
+                        let vehicle_link = '<a href="' + siteurl + 'vehicle/' + ID + '" target="_blank">' + (name.length > 35 ? name.substring(0, 35) + '...' : name) + '</a>';
+                        currentState.find('.title').html(vehicle_link);
+                        currentState.find('.vehicleprofile').attr("onclick", "window.location.href='" + siteurl + 'vehicle/' + ID + "';");
+                        currentState.find('.social-share-links a').eq(0).attr("onclick", "window.open('https://www.facebook.com/sharer/sharer.php?u=" + siteurl + 'vehicle/' + ID + "');");
+                        currentState.find('.social-share-links a').eq(1).attr("onclick", "window.open('https://twitter.com/intent/tweet?url=" + siteurl + 'vehicle/' + ID + "');");
+                        currentState.find('.social-share-links a').eq(2).attr("onclick", "window.open('mailto:?subject=Check%20out%20this%20vehicle&body=" + siteurl + 'vehicle/' + ID + "');");
+                        currentState.find('.favourite-vehicle').attr("onclick", "makeFavourite('" + ID + "', '" + auth_user_id + "')");
+                        currentState.find('.favourite-vehicle').parent().attr("id", "favourite-" + ID);
+                    }
+
+                    var rankTag = $(this).parent().next().find('.ranktag').text();
+
+                    SaveDataToLocalStorage(carFullData, rankTag);
+                    $('.carcomparisionlists').css('visibility', 'visible');
+                    $('.comaprisionblock').css('display', 'block');
+                    $('#savecomparisions').removeAttr('disabled').removeAttr('style').text('Save');
+                    currentState.find('.vehicledelete').attr('data-id', ID);
+
+
+                    if (rankTag == '1st') {
+                        currentState.find('.favourite-vehicle i').css('color', carFullData.user.length > 0 ? 'red' : '');
+                        vehicleDetail(JSON.parse(carFullData.data), 0, currentState, name, ID, carFullData);
+                    }
+
+                    if (rankTag == '2nd') {
+                        currentState.find('.favourite-vehicle i').css('color', carFullData.user.length > 0 ? 'red' : '');
+                        vehicleDetail(JSON.parse(carFullData.data), 1, currentState, name, ID, carFullData);
+                    }
+
+                    if (rankTag == '3rd') {
+                        currentState.find('.favourite-vehicle i').css('color', carFullData.user.length > 0 ? 'red' : '');
+                        vehicleDetail(JSON.parse(carFullData.data), 2, currentState, name, ID, carFullData);
+                    }
+
+                    if (rankTag == '4th') {
+                        currentState.find('.favourite-vehicle i').css('color', carFullData.user.length > 0 ? 'red' : '');
+                        vehicleDetail(JSON.parse(carFullData.data), 3, currentState, name, ID, carFullData);
+                    }
+
+                    if (rankTag == '5th') {
+                        currentState.find('.favourite-vehicle i').css('color', carFullData.user.length > 0 ? 'red' : '');
+                        vehicleDetail(JSON.parse(carFullData.data), 4, currentState, name, ID, carFullData);
+                    }
+
+                    if (rankTag == '6th') {
+                        currentState.find('.favourite-vehicle i').css('color', carFullData.user.length > 0 ? 'red' : '');
+                        vehicleDetail(JSON.parse(carFullData.data), 5, currentState, name, ID, carFullData);
+                    }
+
+                    // Run the following block once, instead of using setInterval
+                    var maxPowerHorse = Math.max.apply([], $('.specifications-horse-power').next().children().map(function () {
+                        return $(this).find('.valueholder').text();
+                    }).get());
+
+                    var maxRpm = Math.max.apply([], $('.specifications-rpm').next().children().map(function () {
+                        return $(this).find('.valueholder').text();
+                    }).get());
+
+                    var maxTourque = Math.max.apply([], $('.specifications-torque').next().children().map(function () {
+                        return $(this).find('.valueholder').text();
+                    }).get());
+
+                    var maxTourqueRpm = Math.max.apply([], $('.specifications-torque-rpm').next().children().map(function () {
+                        return $(this).find('.valueholder').text();
+                    }).get());
+
+                    $('.specifications-horse-power').next().children().each(function () {
+                        var currentPowerHorse = parseInt($(this).find('.valueholder').text());
+                        $(this).find('.horsepowermeter').children().css('width', (currentPowerHorse >= maxPowerHorse ? 100 : currentPowerHorse * 100 / maxPowerHorse) + '%');
+                    });
+
+                    $('.specifications-rpm').next().children().each(function () {
+                        var currentPowerHorse = parseInt($(this).find('.valueholder').text());
+                        $(this).find('.horsepowermeter').children().css('width', (currentPowerHorse >= maxRpm ? 100 : currentPowerHorse * 100 / maxRpm) + '%');
+                    });
+
+                    $('.specifications-torque').next().children().each(function () {
+                        var currentPowerHorse = parseInt($(this).find('.valueholder').text());
+                        $(this).find('.horsepowermeter').children().css('width', (currentPowerHorse >= maxTourque ? 100 : currentPowerHorse * 100 / maxTourque) + '%');
+                    });
+
+                    $('.specifications-torque-rpm').next().children().each(function () {
+                        var currentPowerHorse = parseInt($(this).find('.valueholder').text());
+                        $(this).find('.horsepowermeter').children().css('width', (currentPowerHorse >= maxTourqueRpm ? 100 : currentPowerHorse * 100 / maxTourqueRpm) + '%');
+                    });
+                });
         },
-        minimumInputLength: 2, // Start searching after entering 2 or more characters
-        placeholder: 'Search for a vehicle', // Placeholder text
-        allowClear: true // Option to clear the selection
-    })
-        .on('change', function (e) {
-            $('.resetfiltersettings').fadeIn();
-            var selectedData = $(this).select2('data');
-
-            if (Array.isArray(selectedData) && selectedData.length > 0) {
-                var carData = selectedData[0];
-                var ID = carData.id;
-                var name = carData.text;
-                var carFullData = carData.data; // Contains all car info
-
-            } else {
-                var name = 'N/A';
-                var ID = 0;
-                console.log('selectedData is either not an array or it is empty.');
-            }
-
-            if (ID == 0) return false;
-            var currentState = $(this).parent().next();
-
-            if (name !== 'Select Vehicle') {
-                let vehicle_link = '<a href="' + siteurl + 'vehicle/' + ID + '" target="_blank">' + (name.length > 35 ? name.substring(0, 35) + '...' : name) + '</a>';
-                currentState.find('.title').html(vehicle_link);
-                currentState.find('.vehicleprofile').attr("onclick", "window.location.href='" + siteurl + 'vehicle/' + ID + "';");
-                currentState.find('.social-share-links a').eq(0).attr("onclick", "window.open('https://www.facebook.com/sharer/sharer.php?u=" + siteurl + 'vehicle/' + ID + "');");
-                currentState.find('.social-share-links a').eq(1).attr("onclick", "window.open('https://twitter.com/intent/tweet?url=" + siteurl + 'vehicle/' + ID + "');");
-                currentState.find('.social-share-links a').eq(2).attr("onclick", "window.open('mailto:?subject=Check%20out%20this%20vehicle&body=" + siteurl + 'vehicle/' + ID + "');");
-                currentState.find('.favourite-vehicle').attr("onclick", "makeFavourite('" + ID + "', '" + auth_user_id + "')");
-                currentState.find('.favourite-vehicle').parent().attr("id", "favourite-" + ID);
-            }
-
-            var rankTag = $(this).parent().next().find('.ranktag').text();
-
-            SaveDataToLocalStorage(carFullData, rankTag);
-            $('.carcomparisionlists').css('visibility', 'visible');
-            $('.comaprisionblock').css('display', 'block');
-            $('#savecomparisions').removeAttr('disabled').removeAttr('style').text('Save');
-            currentState.find('.vehicledelete').attr('data-id', ID);
-
-
-            if (rankTag == '1st') {
-                currentState.find('.favourite-vehicle i').css('color', carFullData.user.length > 0 ? 'red' : '');
-                vehicleDetail(JSON.parse(carFullData.data), 0, currentState, name, ID, carFullData);
-            }
-
-            if (rankTag == '2nd') {
-                currentState.find('.favourite-vehicle i').css('color', carFullData.user.length > 0 ? 'red' : '');
-                vehicleDetail(JSON.parse(carFullData.data), 1, currentState, name, ID, carFullData);
-            }
-
-            if (rankTag == '3rd') {
-                currentState.find('.favourite-vehicle i').css('color', carFullData.user.length > 0 ? 'red' : '');
-                vehicleDetail(JSON.parse(carFullData.data), 2, currentState, name, ID, carFullData);
-            }
-
-            if (rankTag == '4th') {
-                currentState.find('.favourite-vehicle i').css('color', carFullData.user.length > 0 ? 'red' : '');
-                vehicleDetail(JSON.parse(carFullData.data), 3, currentState, name, ID, carFullData);
-            }
-
-            if (rankTag == '5th') {
-                currentState.find('.favourite-vehicle i').css('color', carFullData.user.length > 0 ? 'red' : '');
-                vehicleDetail(JSON.parse(carFullData.data), 4, currentState, name, ID, carFullData);
-            }
-
-            if (rankTag == '6th') {
-                currentState.find('.favourite-vehicle i').css('color', carFullData.user.length > 0 ? 'red' : '');
-                vehicleDetail(JSON.parse(carFullData.data), 5, currentState, name, ID, carFullData);
-            }
-
-            // Run the following block once, instead of using setInterval
-            var maxPowerHorse = Math.max.apply([], $('.specifications-horse-power').next().children().map(function () {
-                return $(this).find('.valueholder').text();
-            }).get());
-
-            var maxRpm = Math.max.apply([], $('.specifications-rpm').next().children().map(function () {
-                return $(this).find('.valueholder').text();
-            }).get());
-
-            var maxTourque = Math.max.apply([], $('.specifications-torque').next().children().map(function () {
-                return $(this).find('.valueholder').text();
-            }).get());
-
-            var maxTourqueRpm = Math.max.apply([], $('.specifications-torque-rpm').next().children().map(function () {
-                return $(this).find('.valueholder').text();
-            }).get());
-
-            $('.specifications-horse-power').next().children().each(function () {
-                var currentPowerHorse = parseInt($(this).find('.valueholder').text());
-                $(this).find('.horsepowermeter').children().css('width', (currentPowerHorse >= maxPowerHorse ? 100 : currentPowerHorse * 100 / maxPowerHorse) + '%');
-            });
-
-            $('.specifications-rpm').next().children().each(function () {
-                var currentPowerHorse = parseInt($(this).find('.valueholder').text());
-                $(this).find('.horsepowermeter').children().css('width', (currentPowerHorse >= maxRpm ? 100 : currentPowerHorse * 100 / maxRpm) + '%');
-            });
-
-            $('.specifications-torque').next().children().each(function () {
-                var currentPowerHorse = parseInt($(this).find('.valueholder').text());
-                $(this).find('.horsepowermeter').children().css('width', (currentPowerHorse >= maxTourque ? 100 : currentPowerHorse * 100 / maxTourque) + '%');
-            });
-
-            $('.specifications-torque-rpm').next().children().each(function () {
-                var currentPowerHorse = parseInt($(this).find('.valueholder').text());
-                $(this).find('.horsepowermeter').children().css('width', (currentPowerHorse >= maxTourqueRpm ? 100 : currentPowerHorse * 100 / maxTourqueRpm) + '%');
-            });
-        });
+        error: function () {
+            console.error('Failed to fetch garage vehicles.');
+        }
+    });
 
 
     $('.newcarselectoroption').select2()
@@ -1427,38 +1472,38 @@ $(window).on('load', function () {
         });
 
 
-        $('.select-vehicle').on('click', function () {
-            const $children = $(".dragableslidingcars").children();
-            let carShown = false;
-        
-            // Loop through each child and find the first hidden one to show
+    $('.select-vehicle').on('click', function () {
+        const $children = $(".dragableslidingcars").children();
+        let carShown = false;
+
+        // Loop through each child and find the first hidden one to show
+        $children.each(function (index) {
+            if ($(this).is(":hidden")) {
+                $(this).fadeIn(1000);  // Smoothly show the hidden car
+                carShown = true;
+                return false;  // Exit the loop after showing one car
+            }
+        });
+
+        // If all visible and max cars have been reached, trigger the next slide
+        if (!carShown && $children.filter(":hidden").length === 0) {
+            $('.next.next1').trigger('click');
+
+            // Check for any remaining hidden cars after sliding
             $children.each(function (index) {
                 if ($(this).is(":hidden")) {
-                    $(this).fadeIn(1000);  // Smoothly show the hidden car
-                    carShown = true;
+                    $(this).fadeIn(1000);  // Smoothly show the next hidden car
                     return false;  // Exit the loop after showing one car
                 }
             });
-        
-            // If all visible and max cars have been reached, trigger the next slide
-            if (!carShown && $children.filter(":hidden").length === 0) {
-                $('.next.next1').trigger('click');
-        
-                // Check for any remaining hidden cars after sliding
-                $children.each(function (index) {
-                    if ($(this).is(":hidden")) {
-                        $(this).fadeIn(1000);  // Smoothly show the next hidden car
-                        return false;  // Exit the loop after showing one car
-                    }
-                });
-            }
-        
-            // If no cars are hidden at all, show the alert
-            if ($children.filter(":hidden").length === 0) {
-                alert("Max cars have been reached. Remove a car or start a new comparison to continue.");
-            }
-        });
-        
+        }
+
+        // If no cars are hidden at all, show the alert
+        if ($children.filter(":hidden").length === 0) {
+            alert("Max cars have been reached. Remove a car or start a new comparison to continue.");
+        }
+    });
+
 
 
     $('.vehicledelete').on('click', function () {
@@ -1704,7 +1749,7 @@ function SaveComparisionsDataToLocalStorage(vehicle, key) {
 
 
 function DeleteDataFromLocalStorage(key) {
-    
+
     var comparisions = JSON.parse(localStorage.getItem('comparisions')) || {};
 
     if (Object.keys(comparisions).length <= 6) {

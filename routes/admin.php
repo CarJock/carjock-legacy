@@ -18,7 +18,7 @@ Auth::Routes(['register' => false]);
 Route::group([
     'as' => 'admin.',
     'middleware' => 'auth',
-], function(){
+], function () {
     Route::get('/', 'DashboardController@index');
     Route::get('/dashboard', 'DashboardController@index')->name('dashboard');
 
@@ -43,4 +43,13 @@ Route::group([
     Route::patch('/vehicle-model', 'VehicleModelController@update')->name('vehicle-model.update');
     Route::delete('/vehicle-model/{id}', 'VehicleModelController@destroy')->name('vehicle-model.destroy');
     Route::post('/chromedata/jobs', 'ChromeDataController@handleJob')->name('chromedata.job');
+
+    Route::get('/api/divisions', 'ChromeDataController@getDivisionsByYear');
+    Route::get('/api/models', 'ChromeDataController@getModelsByDivision');
+    Route::get('/api/styles', 'ChromeDataController@getStylesByModel');
+    Route::get('/api/vehicles', 'ChromeDataController@getVehiclesByStyles');
+    Route::post('/api/update-divisions', 'ChromeDataController@updateDivisions');
+    Route::post('/api/update-models', 'ChromeDataController@updateModels');
+    Route::post('/api/update-styles', 'ChromeDataController@updateStyles');
+    Route::post('/api/update-vehicles', 'ChromeDataController@updateVehicles');
 });

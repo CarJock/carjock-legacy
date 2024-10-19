@@ -124,12 +124,12 @@ class HomeController extends Controller
         $vehicle = Vehicle::with('fuel_type', 'engine_type')->findOrFail($id);
         $detail = json_decode($vehicle->data);
 
-        $get_style_model = Style::where('number', $vehicle->style_id)->first();
+        $get_style_model = Style::find($vehicle->style_id);
         if (isset($get_style_model->model_id)) {
             $get_all_styles = Style::where('model_id', $get_style_model->model_id)->pluck('number')->toArray();
             $related_vehicles = Vehicle::whereIn('style_id', $get_all_styles)->whereNotIn('id', [$id])->get();
         }
-        $images = VehicleImage::where('style_id', $vehicle->style_id)->get();
+        $images = VehicleImage::where('style_id', $vehicle->style_number)->get();
 
         //dd($images->count());
         return view('frontend.vehicle-detail', [

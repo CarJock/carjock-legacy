@@ -51,7 +51,12 @@
     </div>
     <div class="col-md-4 carcard secondcomparision" style="display: none">
         <div class="carselector">
-            <select class="carselectoroption" name="state"></select>
+            <select class="carselectoroption" name="state">
+                <option value="0">Select Vehicle</option>
+                @foreach($garageVehicles as $vehicle)
+                    <option value="{{ $vehicle->id }}">{{ $vehicle->name }}</option>
+                @endforeach
+            </select>
         </div>
         <div class="inner">
             <div class="imageholder">
