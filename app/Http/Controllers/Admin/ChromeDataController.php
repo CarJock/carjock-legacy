@@ -286,39 +286,39 @@ class ChromeDataController extends Controller
             //     return response()->json(['message' => 'API request limit exceeded!'], 429);
             // }
             $cover_image = $this->fetchVehicleImages($style->number);
-            // Check if vehicle already exists
-            $vehicle_exists = Vehicle::where('style_id', $style->id)->first();
-            if (!$vehicle_exists) {
-                // Call the SOAP API to fetch vehicle data
-                $vehicle = $client->describeVehicle([
-                    'accountInfo' => $account,
-                    'styleId' => $style->number,
-                    'switch' => ['ShowExtendedDescriptions', 'ShowExtendedTechnicalSpecifications', 'IncludeDefinitions', 'ShowAvailableEquipment'],
-                    'SwitchChromeMediaGallery' => 'Both'
-                ]);
 
-                if (isset($vehicle->responseStatus->responseCode) && $vehicle->responseStatus->responseCode == 'Successful') {
+            // Call the SOAP API to fetch vehicle data
+            $chromdataVehicle = $client->describeVehicle([
+                'accountInfo' => $account,
+                'styleId' => $style->number,
+                'switch' => ['ShowExtendedDescriptions', 'ShowExtendedTechnicalSpecifications', 'IncludeDefinitions', 'ShowAvailableEquipment'],
+                'SwitchChromeMediaGallery' => 'Both'
+            ]);
 
-                    $fuel_type = $this->createFuelType($vehicle->engine);
-                    $engine_type = $this->createEngineType($vehicle->engine);
+            if (isset($chromdataVehicle->responseStatus->responseCode) && $chromdataVehicle->responseStatus->responseCode == 'Successful') {
 
-                    Vehicle::create([
+                $fuel_type = $this->createFuelType($chromdataVehicle->engine);
+                $engine_type = $this->createEngineType($chromdataVehicle->engine);
+                $vehicle = Vehicle::where('style_id', $style->id)->first();
+                if (!$vehicle) {
+                    $vehicle = Vehicle::create([
                         'style_id' => $style->id,
                         'style_number' => $style->number,
                         'engine_type_id' => $engine_type->id,
                         'fuel_type_id' => $fuel_type->id,
-                        'name' => $vehicle->modelYear . ' ' . $vehicle->style->division->_ . ' ' . $vehicle->style->model->_ . ' ' . $vehicle->style->name,
-                        'year' => $vehicle->modelYear,
-                        'body_type' => is_array($vehicle->style->bodyType) ? $vehicle->style->bodyType[0]->_ : $vehicle->style->bodyType->_,
-                        'data' => json_encode($vehicle),
+                        'name' => $chromdataVehicle->modelYear . ' ' . $chromdataVehicle->style->division->_ . ' ' . $chromdataVehicle->style->model->_ . ' ' . $chromdataVehicle->style->name,
+                        'year' => $chromdataVehicle->modelYear,
+                        'body_type' => is_array($chromdataVehicle->style->bodyType) ? $chromdataVehicle->style->bodyType[0]->_ : $chromdataVehicle->style->bodyType->_,
+                        'data' => json_encode($chromdataVehicle),
                         'image' => $cover_image,
-                        // Add other fields like technical specifications, division, model, etc.
                     ]);
-
-                    // Mark style as dumped
-                    $style->dump = 1;
-                    $style->save();
                 }
+
+                $this->updateVehicleWithTechnicalInfo($vehicle, $chromdataVehicle);
+
+                // Mark style as dumped
+                $style->dump = 1;
+                $style->save();
             }
         }
 
@@ -409,5 +409,98 @@ class ChromeDataController extends Controller
         }
 
         return $cover_image;
+    }
+
+    private function updateVehicleWithTechnicalInfo($vehicle, $chromdataVehicle)
+    {
+        $vehicle->pricing = $chromdataVehicle->style->basePrice->msrp;
+
+        if (isset($chromdataVehicle->engine->horsepower->value)) {
+            $vehicle->horsepower = $chromdataVehicle->engine->horsepower->value;
+        }
+
+        if (isset($chromdataVehicle->engine->netTorque->value)) {
+            $vehicle->torque = $chromdataVehicle->engine->netTorque->value;
+        }
+
+        if (isset($chromdataVehicle->bestMakeName)) {
+            $vehicle->division = $chromdataVehicle->bestMakeName;
+        }
+
+        if (isset($chromdataVehicle->bestModelName)) {
+            $vehicle->model = $chromdataVehicle->bestModelName;
+        }
+
+        if (isset($chromdataVehicle->bestStyleName)) {
+            $vehicle->style = $chromdataVehicle->bestStyleName;
+        }
+
+        if (isset($chromdataVehicle->engine->fuelEconomy->city->low)) {
+            $vehicle->mpg_city = $chromdataVehicle->engine->fuelEconomy->city->low;
+        }
+
+        if (isset($chromdataVehicle->engine->fuelEconomy->hwy->low)) {
+            $vehicle->mpg_hwy = $chromdataVehicle->engine->fuelEconomy->hwy->low;
+        }
+
+        foreach ($chromdataVehicle->technicalSpecification as $tech) {
+            if (isset($tech->definition->title->_) && $tech->definition->title->_ === 'Passenger Capacity') {
+                $vehicle->seating = isset($tech->value->value) && $tech->value->value ? $tech->value->value : 0;
+            }
+
+            if (isset($tech->definition->title->_) && $tech->definition->title->_ === 'Front Head Room') {
+                $vehicle->front_head_room = isset($tech->value->value) && $tech->value->value ? $tech->value->value : (isset($tech->range) && isset($tech->range->max) ? $tech->range->max : null);
+            }
+
+            if (isset($tech->definition->title->_) && $tech->definition->title->_ === 'Second Head Room') {
+                $vehicle->second_head_room = isset($tech->value->value) && $tech->value->value ? $tech->value->value : (isset($tech->range) && isset($tech->range->max) ? $tech->range->max : null);
+            }
+
+            if (isset($tech->definition->title->_) && $tech->definition->title->_ === 'Front Leg Room') {
+                $vehicle->front_leg_room = isset($tech->value->value) && $tech->value->value ? $tech->value->value : (isset($tech->range) && isset($tech->range->max) ? $tech->range->max : null);
+            }
+
+            if (isset($tech->definition->title->_) && $tech->definition->title->_ === 'Second Leg Room') {
+                $vehicle->second_leg_room = isset($tech->value->value) && $tech->value->value ? $tech->value->value : (isset($tech->range) && isset($tech->range->max) ? $tech->range->max : null);
+            }
+
+            if (isset($tech->definition->title->_) && $tech->definition->title->_ === 'Front Shoulder Room') {
+                $vehicle->front_shoulder_room = isset($tech->value->value) && $tech->value->value ? $tech->value->value : (isset($tech->range) && isset($tech->range->max) ? $tech->range->max : null);
+            }
+
+            if (isset($tech->definition->title->_) && $tech->definition->title->_ === 'Second Shoulder Room') {
+                $vehicle->second_shoulder_room = isset($tech->value->value) && $tech->value->value ? $tech->value->value : (isset($tech->range) && isset($tech->range->max) ? $tech->range->max : null);
+            }
+
+            if (isset($tech->definition->title->_) && $tech->definition->title->_ === 'Length, Overall') {
+                $vehicle->length_overall = isset($tech->value->value) && $tech->value->value ? $tech->value->value : (isset($tech->range) && isset($tech->range->max) ? $tech->range->max : null);
+            }
+
+            if (isset($tech->definition->title->_) && $tech->definition->title->_ === 'Height, Overall') {
+                $vehicle->height_overall = isset($tech->value->value) && $tech->value->value ? $tech->value->value : (isset($tech->range) && isset($tech->range->max) ? $tech->range->max : null);
+            }
+
+            if (isset($tech->definition->title->_) && $tech->definition->title->_ === 'Width, Max w/o mirrors') {
+                $vehicle->width_overall = isset($tech->value->value) && $tech->value->value ? $tech->value->value : (isset($tech->range) && isset($tech->range->max) ? $tech->range->max : null);
+            }
+
+            if (isset($tech->definition->title->_) && $tech->definition->title->_ === 'Cargo Volume with Rear Seat Up') {
+                $vehicle->cargo_volume = isset($tech->value->value) && $tech->value->value ? $tech->value->value : (isset($tech->range) && isset($tech->range->max) ? $tech->range->max : null);
+            }
+
+            if (isset($tech->definition->title->_) && $tech->definition->title->_ === 'Cargo Volume to Seat 1') {
+                $vehicle->cargo_volume_to_seat_1 = isset($tech->value->value) && $tech->value->value ? $tech->value->value : (isset($tech->range) && isset($tech->range->max) ? $tech->range->max : null);
+            }
+
+            if (isset($tech->definition->title->_) && $tech->definition->title->_ === 'Trunk Volume') {
+                $vehicle->trunk_volume = isset($tech->value->value) && $tech->value->value ? $tech->value->value : (isset($tech->range) && isset($tech->range->max) ? $tech->range->max : null);
+            }
+
+            if (isset($tech->definition->title->_) && $tech->definition->title->_ === 'Estimated Battery Range') {
+                $vehicle->battery_range = isset($tech->value->value) && $tech->value->value ? $tech->value->value : (isset($tech->range) && isset($tech->range->max) ? $tech->range->max : null);
+            }
+        }
+
+        $vehicle->save();
     }
 }
