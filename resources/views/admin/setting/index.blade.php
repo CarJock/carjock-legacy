@@ -84,10 +84,10 @@
                                     <label class="form-label">Divisions / Make</label>
                                     <select id="division" name="division"
                                         class="form-control @error('division') is-invalid @enderror">
-                                        <option value="all">All Divisions</option>
+                                        <option value="">No Divisions availble</option>
                                     </select>
                                     <button id="update-divisions" class="btn btn-sm btn-primary mt-1 float-end"
-                                        type="button" style="display: none">
+                                        type="button">
                                         Fetch Divisions
                                     </button>
                                     <small id="division-count" class="text-muted"></small>
@@ -103,10 +103,9 @@
 
                                     <select id="model" name="model"
                                         class="form-control @error('model') is-invalid @enderror">
-                                        <option value="">Select Model</option>
+                                        <option value="">No models available</option>
                                     </select>
-                                    <button id="update-models" class="btn btn-sm btn-primary mt-1 float-end" type="button"
-                                        style="display: none;">
+                                    <button id="update-models" class="btn btn-sm btn-primary mt-1 float-end" type="button">
                                         Fetch Models
                                     </button>
 
@@ -122,10 +121,9 @@
                                     <label class="form-label">Styles / Variants</label>
                                     <select id="style" name="style[]" multiple
                                         class="form-control @error('style') is-invalid @enderror">
-                                        <option value="">Select Style</option>
+                                        <option value="">No Styles available</option>
                                     </select>
-                                    <button id="update-styles" class="btn btn-sm btn-primary mt-1 float-end" type="button"
-                                        style="display: none">
+                                    <button id="update-styles" class="btn btn-sm btn-primary mt-1 float-end" type="button">
                                         Fetch Styles
                                     </button>
                                     <small id="style-count" class="text-muted"></small> <!-- Placeholder for style count -->

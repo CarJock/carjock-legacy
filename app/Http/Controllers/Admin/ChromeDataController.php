@@ -86,13 +86,26 @@ class ChromeDataController extends Controller
     public function getModelsByDivision(Request $request)
     {
         $divisionId = $request->input('division_id');
-        $division = Division::find($divisionId);
+        $year = $request->input('year'); // Retrieve the selected year
 
-        // Fetch distinct models by their number
-        $models = Model::where('division_id', $division->id)
-            ->select('id', 'number', 'name') // Select only the fields you need
-            ->distinct('number') // Ensure distinct by the number field
-            ->get();
+        if ($divisionId === 'all') {
+            // Fetch all distinct models associated with divisions for the selected year
+            $models = Model::whereIn('division_id', function ($query) use ($year) {
+                $query->select('id')
+                    ->from('divisions')
+                    ->where('year', $year); // Assuming there is a year column in divisions
+            })
+                ->select('id', 'number', 'name')
+                ->distinct('number')
+                ->get();
+        } else {
+            // Fetch distinct models by division_id
+            $division = Division::findOrFail($divisionId);
+            $models = Model::where('division_id', $division->id)
+                ->select('id', 'number', 'name')
+                ->distinct('number')
+                ->get();
+        }
 
         return response()->json(['models' => $models]);
     }
@@ -100,24 +113,74 @@ class ChromeDataController extends Controller
 
     public function getStylesByModel(Request $request)
     {
+        $year = $request->input('year');
         $modelId = $request->input('model_id');
-        $styles = Style::where('model_id', $modelId)->get();
+        $divisionId = $request->input('division_id');
+        // Fetch division IDs for the selected year
+        if ($divisionId == 'all') {
+            $divisionIds = Division::where('year', $year)->pluck('id')->toArray();
+        }
+
+        if ($modelId === 'all') {
+            if ($divisionId && $divisionId != 'all') {
+                $modleIds = Model::where('division_id', $divisionId)->pluck('id')->toArray();
+            } else {
+                $modleIds = Model::whereIn('division_id', $divisionIds)->pluck('id')->toArray();
+            }
+            // Fetch styles for all models of the selected division IDs
+            $styles = Style::whereIn('model_id', $modleIds)->get();
+        } else {
+            // Fetch styles related to the selected model
+            $styles = Style::where('model_id', $modelId)->get();
+        }
 
         return response()->json(['styles' => $styles]);
     }
 
-
     public function getVehiclesByStyles(Request $request)
     {
-        $styleIds = $request->input('style_ids'); // Retrieve style IDs from request
+        $styleIds = $request->input('style_ids');
+        $modelId = $request->input('model_id');
+        $divisionId = $request->input('division_id');
+        $year = $request->input('year');
 
+        // If "all" is selected in styles dropdown
+        if (is_array($styleIds) && in_array('all', $styleIds)) {
+            // Check if "all" is selected in models
+            if ($modelId == 'all') {
+                // Fetch division IDs based on the year
+                if ($divisionId == 'all') {
+                    // Get all division IDs for the selected year
+                    $divisionIds = Division::where('year', $year)->pluck('id')->toArray();
+                } else {
+                    // Use the selected division ID
+                    $divisionIds = [$divisionId];
+                }
+                // Get all model IDs from those divisions
+                $modelIds = Model::whereIn('division_id', $divisionIds)->pluck('id')->toArray();
+            } else {
+                // If a specific model is selected, use it
+                $modelIds = [$modelId];
+            }
+
+            // Fetch style IDs from selected models
+            $styleIds = Style::whereIn('model_id', $modelIds)->pluck('id')->toArray();
+
+            // Get the vehicle count for all styles found
+            $vehicleCount = Vehicle::whereIn('style_id', $styleIds)->count();
+
+            return response()->json([
+                'vehicles' => ['id' => $vehicleCount, 'name' => 'Number of Vehicles found: ' . $vehicleCount]
+            ]);
+        }
+
+        // Fetch vehicles for specific styles if style IDs are provided
         if (is_array($styleIds) && count($styleIds) > 0) {
-            // Query vehicles related to the selected styles
-            $vehicles = Vehicle::whereIn('style_id', $styleIds)->get(); // Assuming 'style_id' in the Vehicle model
-
+            $vehicles = Vehicle::whereIn('style_id', $styleIds)->get();
             return response()->json(['vehicles' => $vehicles]);
         } else {
-            return response()->json(['vehicles' => []], 400); // Return empty response if no styles selected
+            // Return empty response if no styles are selected
+            return response()->json(['vehicles' => []], 400);
         }
     }
 
@@ -138,31 +201,62 @@ class ChromeDataController extends Controller
         $divisionId = $request->input('division_id');
         $year = $request->input('year');
 
-        // Fetch models based on division and year from ChromeData
-        $division = Division::findOrFail($divisionId);
         $client = new \SoapClient('http://services.chromedata.com/Description/7c?wsdl');
-        $account = ['number' => config('services.jdpower.client_id'), 'secret' => config('services.jdpower.client_secret'), 'country' => 'US', 'language' => 'en'];
-
-        $models = $client->getModels([
-            'accountInfo' => $account,
-            'modelYear' => $year,
-            'divisionId' => $division->number
-        ]);
+        $account = [
+            'number' => config('services.jdpower.client_id'),
+            'secret' => config('services.jdpower.client_secret'),
+            'country' => 'US',
+            'language' => 'en'
+        ];
 
         $updatedModels = [];
 
-        if (isset($models->responseStatus->responseCode) && $models->responseStatus->responseCode == 'Successful') {
-            foreach ($models->model as $model) {
-                $existingModel = Model::updateOrCreate(
-                    ['division_id' => $division->id, 'number' => $model->id],
-                    ['name' => $model->_]
-                );
-                $updatedModels[] = $existingModel;
+        if ($divisionId === 'all') {
+            // Fetch divisions for the specified year only
+            $divisions = Division::where('year', $year)->get();  // Assuming the 'year' column exists in the divisions table
+            foreach ($divisions as $division) {
+                // Fetch models for each division in the specified year
+                $chromeModels = $client->getModels([
+                    'accountInfo' => $account,
+                    'modelYear' => $year,
+                    'divisionId' => $division->number
+                ]);
+
+                if (isset($chromeModels->responseStatus->responseCode) && $chromeModels->responseStatus->responseCode == 'Successful') {
+                    foreach ($chromeModels->model as $chromeModel) {
+                        $existingModel = Model::updateOrCreate(
+                            ['division_id' => $division->id, 'number' => $chromeModel->id],
+                            ['name' => $chromeModel->_]
+                        );
+                        $updatedModels[] = $existingModel;
+                    }
+                }
+            }
+        } else {
+            // Fetch a specific division
+            $division = Division::where('id', $divisionId)->where('year', $year)->firstOrFail();
+
+            // Fetch models for the specific division
+            $models = $client->getModels([
+                'accountInfo' => $account,
+                'modelYear' => $year,
+                'divisionId' => $division->number
+            ]);
+
+            if (isset($models->responseStatus->responseCode) && $models->responseStatus->responseCode == 'Successful') {
+                foreach ($models->model as $model) {
+                    $existingModel = Model::updateOrCreate(
+                        ['division_id' => $division->id, 'number' => $model->id],
+                        ['name' => $model->_]
+                    );
+                    $updatedModels[] = $existingModel;
+                }
             }
         }
 
         return response()->json(['models' => $updatedModels]);
     }
+
 
     public function updateDivisions(Request $request)
     {
@@ -189,12 +283,12 @@ class ChromeDataController extends Controller
             // Loop through each division from the response
             foreach ($divisions->division as $division) {
                 // Check if the division already exists for the same year
-                $existingModel = Division::where('number', $division->id)
+                $existingRecord = Division::where('number', $division->id)
                     ->where('year', $year)
                     ->first();
 
                 // If the division doesn't exist, create it
-                if (!$existingModel) {
+                if (!$existingRecord) {
                     $newDivision = Division::create([
                         'name' => $division->_,
                         'number' => $division->id,
@@ -203,6 +297,8 @@ class ChromeDataController extends Controller
 
                     // Add the newly created division to the list of updated divisions
                     $updatedDivisions[] = $newDivision;
+                } else {
+                    $updatedDivisions[] = $existingRecord;
                 }
             }
         }
@@ -268,26 +364,54 @@ class ChromeDataController extends Controller
         $client = new \SoapClient('http://services.chromedata.com/Description/7c?wsdl');
         $account = ['number' => $usernumber, 'secret' => $secretKey, 'country' => "US", 'language' => "en"];
 
-        // Retrieve form data
-        $styleIds = $request->input('style_ids'); // Array of style IDs
-        $limit = $request->input('vehicles_limit', 1000); // Vehicle limit, default 10
-        $withImages = $request->input('free_pull') == 1; // Whether to pull images
+        $year = $request->input('year');
+        $divisionId = $request->input('division_id');
+        $modelId = $request->input('model_id');
+        $styleIds = $request->input('style_ids');
+        $limit = $request->input('vehicles_limit'); // Default to 1000
+        $withImages = $request->input('free_pull') == 1;  // Handle free pull (images)
 
-        // Fetch styles
-        $styles = Style::whereIn('id', $styleIds)->get();
+        // Initialize $styles to an empty collection
+        $styles = collect();
+
+        // If "all" is selected in styles dropdown
+        if (is_array($styleIds) && in_array('all', $styleIds)) {
+            // Check if "all" is selected in models
+            if ($modelId == 'all') {
+                // Fetch division IDs based on the year
+                if ($divisionId == 'all') {
+                    // Get all division IDs for the selected year
+                    $divisionIds = Division::where('year', $year)->pluck('id')->toArray();
+                } else {
+                    // Use the selected division ID
+                    $divisionIds = [$divisionId];
+                }
+                // Get all model IDs from those divisions
+                $modelIds = Model::whereIn('division_id', $divisionIds)->pluck('id')->toArray();
+            } else {
+                // If a specific model is selected, use it
+                $modelIds = [$modelId];
+            }
+
+            // Fetch styles for the selected models, apply the limit only if it's not null
+            $stylesQuery = Style::whereIn('model_id', $modelIds)->whereDump(0);
+            if ($limit) {
+                $stylesQuery->limit($limit);
+            }
+            $styles = $stylesQuery->get();
+        } else {
+            // Fetch specific styles based on style_ids
+            $stylesQuery = Style::whereIn('id', $styleIds)->whereDump(0);
+            if ($limit) {
+                $stylesQuery->limit($limit);
+            }
+            $styles = $stylesQuery->get();
+        }
 
         foreach ($styles as $style) {
-            // Log API call
-            // DB::table('api_request_logs')->insert(['request_type' => 'vehicles', 'request_from' => $request->ip(), 'created_at' => now()]);
-            // $api_logs = DB::table('api_request_logs')->whereMonth('created_at', date('m'))->count();
 
-            // Stop execution if limit exceeds 1000 API calls
-            // if ($api_logs > 1000) {
-            //     return response()->json(['message' => 'API request limit exceeded!'], 429);
-            // }
-            $cover_image = $this->fetchVehicleImages($style->number);
+            $cover_image = $withImages ? $this->fetchVehicleImages($style->number) : null;
 
-            // Call the SOAP API to fetch vehicle data
             $chromdataVehicle = $client->describeVehicle([
                 'accountInfo' => $account,
                 'styleId' => $style->number,
@@ -322,10 +446,12 @@ class ChromeDataController extends Controller
             }
         }
 
-        $vehicles = Vehicle::whereIn('style_id', $styleIds)->get();
+        // Fetch and return the updated vehicles
+        $vehicles = Vehicle::whereIn('style_id', $styles->pluck('id')->toArray())->get();
 
         return response()->json(['vehicles' => $vehicles]);
     }
+
 
     /**
      * Create fuel type for the vehicle

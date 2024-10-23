@@ -262,7 +262,6 @@
 
     <script>
         $(document).ready(function() {
-
             // Handle year change to update divisions
             $('#year').change(function() {
                 let selectedYear = $(this).val();
@@ -275,7 +274,22 @@
                         }, // Send the selected year as data
                         success: function(response) {
                             let divisionDropdown = $('#division');
+                            let modelDropdown = $(
+                                '#model'); // Assuming this is your model dropdown
+                            let styleDropdown = $(
+                                '#style'); // Assuming this is your style dropdown
+                            let modelCountLabel = $(
+                                '#model-count'
+                                ); // Assuming there's a label or element to display the model count
+                            let styleCountLabel = $(
+                                '#style-count'
+                                ); // Assuming there's a label or element to display the style count
+
                             divisionDropdown.empty(); // Clear previous options
+                            modelDropdown.empty(); // Clear previous model options
+                            styleDropdown.empty(); // Clear previous style options
+                            modelCountLabel.text(''); // Reset model count label
+                            styleCountLabel.text(''); // Reset style count label
 
                             if (response.divisions.length > 0) {
                                 divisionDropdown.append(
@@ -289,11 +303,119 @@
 
                                 $('#division-count').text('Divisions available: ' + response
                                     .divisions.length);
+                                $('#update-vehicle').show();
+
+                                // Reset models and styles if divisions are available
+                                modelDropdown.append('<option value="all">All Models</option>');
+                                styleDropdown.append(
+                                    '<option selected value="all">All Styles</option>');
+
+                                // Now send AJAX request to fetch all models for the selected year with division_id = 'all'
+                                $.ajax({
+                                    url: baseURL +
+                                        '/admin/api/models', // API route to fetch models
+                                    method: 'GET',
+                                    data: {
+                                        year: selectedYear,
+                                        division_id: 'all'
+                                    }, // Send the selected year and division_id 'all'
+                                    success: function(modelResponse) {
+                                        if (modelResponse.models.length > 0) {
+                                            $.each(modelResponse.models, function(
+                                                key, model) {
+                                                modelDropdown.append(
+                                                    '<option value="' +
+                                                    model.id + '">' +
+                                                    model.name +
+                                                    '</option>');
+                                            });
+
+                                            // Update the model count
+                                            modelCountLabel.text(
+                                                'Models available: ' +
+                                                modelResponse.models.length);
+                                        } else {
+                                            modelDropdown.append(
+                                                '<option value="">No Models Available</option>'
+                                            );
+                                            modelCountLabel.text(
+                                                'No models available.');
+                                        }
+
+                                        // Fetch styles based on the selected year with division_id = 'all'
+                                        $.ajax({
+                                            url: baseURL +
+                                                '/admin/api/styles', // API route to fetch styles
+                                            method: 'GET',
+                                            data: {
+                                                year: selectedYear,
+                                                model_id: 'all',
+                                                division_id: 'all'
+                                            },
+                                            success: function(
+                                                styleResponse) {
+                                                if (styleResponse.styles
+                                                    .length > 0) {
+                                                    $.each(styleResponse
+                                                        .styles,
+                                                        function(
+                                                            key,
+                                                            style) {
+                                                            styleDropdown
+                                                                .append(
+                                                                    '<option value="' +
+                                                                    style
+                                                                    .id +
+                                                                    '">' +
+                                                                    style
+                                                                    .name +
+                                                                    '</option>'
+                                                                );
+                                                        });
+                                                    // Update the style count
+                                                    styleCountLabel
+                                                        .text(
+                                                            'Styles available: ' +
+                                                            styleResponse
+                                                            .styles
+                                                            .length);
+                                                } else {
+                                                    styleDropdown
+                                                        .append(
+                                                            '<option value="">No Styles Available</option>'
+                                                        );
+                                                    styleCountLabel
+                                                        .text(
+                                                            'No styles available.'
+                                                        );
+                                                }
+                                            },
+                                            error: function() {
+                                                alert(
+                                                    'Error fetching styles. Please try again.'
+                                                    );
+                                            }
+                                        });
+                                    },
+                                    error: function() {
+                                        alert(
+                                            'Error fetching models. Please try again.'
+                                            );
+                                    }
+                                });
+
                             } else {
+                                // If no divisions are found, display "No Divisions Available"
                                 divisionDropdown.append(
-                                    '<option value="all">No Divisions Available</option>');
+                                    '<option value="">No Divisions Available</option>');
                                 $('#division-count').text('No divisions available.');
                                 $('#update-divisions').show();
+
+                                // Update models and styles dropdowns to "No Models Available" and "No Styles Available"
+                                modelDropdown.append(
+                                    '<option value="">No Models Available</option>');
+                                styleDropdown.append(
+                                    '<option value="">No Styles Available</option>');
                             }
                         },
                         error: function() {
@@ -301,32 +423,39 @@
                         }
                     });
                 } else {
-                    // Reset divisions to default if no year is selected
+                    // Reset divisions, models, and styles to default if no year is selected
                     $('#division').html('<option value="all">All Divisions</option>');
                     $('#division-count').text('');
+                    $('#model').html('<option value="">No Models Available</option>');
+                    $('#style').html('<option value="">No Styles Available</option>');
+                    $('#model-count').text(''); // Reset model count label
+                    $('#style-count').text(''); // Reset style count label
                 }
             });
+
+
+
 
             // Handle division change to update models
             $('#division').change(function() {
                 let divisionId = $(this).val();
+                let selectedYear = $('#year').val();
                 let selectedDivisionName = $('#division option:selected')
                     .text(); // Get the selected division's name
                 let modelSelect = $('#model');
                 modelSelect.empty(); // Clear existing options
 
-                // Set the first option to show the selected division's models
-                modelSelect.append('<option value="all">' + selectedDivisionName + "'s models</option>");
-
                 $.ajax({
                     url: baseURL + '/admin/api/models', // API route to fetch models
                     method: 'GET',
                     data: {
-                        division_id: divisionId
+                        division_id: divisionId,
+                        year: selectedYear
                     },
                     success: function(response) {
                         // Check if models are available
                         if (response.models.length > 0) {
+                            modelSelect.append('<option value="all">All Models</option>');
                             $.each(response.models, function(key, model) {
                                 modelSelect.append('<option value="' + model.id + '">' +
                                     model.name + '</option>');
@@ -352,13 +481,18 @@
             // Handle model change to update styles
             $('#model').change(function() {
                 let modelId = $(this).val();
+                let selectedYear = $('#year').val();
                 let selectedModelName = $('#model option:selected').text(); // Get the selected model's name
+                let selectedDivisionId = $('#division option:selected')
+            .val(); // Get the selected model's name
 
                 $.ajax({
                     url: baseURL + '/admin/api/styles', // API route to fetch styles
                     method: 'GET',
                     data: {
-                        model_id: modelId
+                        model_id: modelId,
+                        year: selectedYear,
+                        division_id: selectedDivisionId
                     },
                     success: function(response) {
                         let styleSelect = $('#style');
@@ -374,7 +508,7 @@
                                 .length);
                         } else {
                             styleSelect.append(
-                                '<option value="all">No Styles Available</option>');
+                                '<option value="">No Styles Available</option>');
                             alert('No styles found for the selected model.');
                             $('#style-count').text('No styles available.');
                             $('#update-styles').show();
@@ -385,8 +519,10 @@
 
             $('#style').change(function() {
                 let styleIds = $(this).val(); // Get the selected style IDs (multi-select)
+                let selectedYear = $('#year').val(); // Get the selected style IDs (multi-select)
+                let selectedModelId = $('#model option:selected').val(); // Get the selected model's name
+                let selectedDivisionId = $('#model option:selected').val(); // Get the selected model's name
                 let selectedModelName = $('#model option:selected').text(); // Get the selected model's name
-
                 if (styleIds && styleIds.length > 0) {
                     $('.preloader').css('display', 'block');
                     $.ajax({
@@ -394,22 +530,30 @@
                             '/admin/api/vehicles', // API route to fetch vehicles based on styles
                         method: 'GET',
                         data: {
-                            style_ids: styleIds // Send selected style IDs
+                            year: selectedYear,
+                            division_id: selectedDivisionId,
+                            model_id: selectedModelId,
+                            style_ids: styleIds
                         },
                         success: function(response) {
                             let vehicleSelect = $(
                                 '#vehicle'); // Assuming there's a vehicle dropdown
                             vehicleSelect.empty(); // Clear existing options
 
-                            if (response.vehicles.length > 0) {
+                            // Check if the response contains a vehicle count when "all" is selected
+                            if (response.vehicles && response.vehicles.length > 0) {
                                 $.each(response.vehicles, function(key, vehicle) {
                                     vehicleSelect.append('<option value="' + vehicle
-                                        .id + '">' +
-                                        vehicle.name + '</option>');
+                                        .id + '">' + vehicle.name + '</option>');
                                 });
                                 // Display the count of available vehicles
                                 $('#vehicle-count').text('Vehicles available: ' + response
                                     .vehicles.length);
+                            } else if (response.vehicles && response.vehicles.id) {
+                                // If response contains the count when "all" is selected
+                                vehicleSelect.append('<option value="all">' + response.vehicles
+                                    .name + '</option>');
+                                $('#vehicle-count').text(response.vehicles.name);
                             } else {
                                 vehicleSelect.append(
                                     '<option value="all">No Vehicles Available</option>');
@@ -434,12 +578,21 @@
 
 
 
+
             $('#update-models').click(function() {
-                $('.preloader').css('display', 'block');
                 let divisionId = $('#division').val();
                 let year = $('#year').val();
-
                 if (divisionId && year) {
+                    const confirmed = confirm(
+                        `This will fetch all models of the selected year (${year}) and division(s) (${divisionId}). Are you sure? The number of API calls will be equal to the number of divisions`
+                    );
+
+                    if (!confirmed) {
+                        // If the user cancels, prevent the request from proceeding
+                        event.preventDefault();
+                        return;
+                    }
+                    $('.preloader').css('display', 'block');
                     $.ajax({
                         url: baseURL +
                             '/admin/api/update-models', // The route to trigger fetching/updating models
@@ -473,16 +626,24 @@
                         }
                     });
                 } else {
-                    alert('Please select a division and year first.');
+                    alert('Please select a division first.');
                 }
             });
 
             $('#update-divisions').click(function() {
-
-                $('.preloader').css('display', 'block');
                 let year = $('#year').val();
 
                 if (year) {
+                    const confirmed = confirm(
+                        `This will fetch all divisions of the selected year (${year}). Are you sure? The API call will be 1`
+                    );
+
+                    if (!confirmed) {
+                        // If the user cancels, prevent the request from proceeding
+                        event.preventDefault();
+                        return;
+                    }
+                    $('.preloader').css('display', 'block');
                     $.ajax({
                         url: baseURL +
                             '/admin/api/update-divisions', // The route to trigger fetching/updating models
@@ -492,38 +653,49 @@
                             year: year
                         },
                         success: function(response) {
-                            let modelSelect = $('#division');
-                            modelSelect.empty();
-
+                            let divisionSelect = $('#division');
+                            divisionSelect.empty();
+                            divisionSelect.append(
+                                '<option value="all">All Divisions</option>');
                             if (response.divisions.length > 0) {
                                 $.each(response.divisions, function(index, division) {
-                                    modelSelect.append('<option value="' + division.id +
+                                    divisionSelect.append('<option value="' + division
+                                        .id +
                                         '">' + division.name + '</option>');
                                 });
-                                $('#model-count').text(response.divisions.length +
+                                $('#division-count').text(response.divisions.length +
                                     ' models updated.');
                             } else {
-                                modelSelect.append(
-                                    '<option value="">No models available</option>');
-                                $('#model-count').text('No models found for this division.');
+                                divisionSelect.append(
+                                    '<option value="">No divisions available</option>');
+                                $('#division-count').text('No divisions found for this year.');
                             }
                             $('.preloader').css('display', 'none');
                         },
                         error: function() {
                             $('.preloader').css('display', 'none');
-                            alert('Error fetching models. Please try again.');
+                            alert('Error fetching divisions. Please try again.');
                         }
                     });
                 } else {
-                    alert('Please select a division and year first.');
+                    alert('Please select a year first.');
                 }
 
             });
 
             $('#update-styles').click(function() {
-                $('.preloader').css('display', 'block');
                 let modelId = $('#model').val();
                 if (modelId) {
+                    const confirmed = confirm(
+                        `This will fetch all styles of the selected model (${modelId}). The number of API calls will be equal to the number of models Are you sure?`
+                    );
+
+                    if (!confirmed) {
+                        // If the user cancels, prevent the request from proceeding
+                        event.preventDefault();
+                        return;
+                    }
+                    $('.preloader').css('display', 'block');
                     $.ajax({
                         url: baseURL +
                             '/admin/api/update-styles',
@@ -556,60 +728,82 @@
                         }
                     });
                 } else {
-                    alert('Please select a year and division first.');
+                    alert('Please select a model first.');
                     $('.preloader').css('display',
                         'none'); // Hide preloader when no division or year is selected
                 }
             });
 
             $('#vehicle-update').click(function() {
-                let styleIds = $('#style').val(); // Get selected style IDs
+
+                let selectedYear = $('#year').val(); // Get selected year
+                let divisionId = $('#division').val(); // Get selected division
+                let modelId = $('#model').val(); // Get selected model
+                let styleIds = $('#style').val(); // Get selected styles (multi-select)
                 let limit = $('#limit').val(); // Get vehicles limit
                 let withImages = $('#withImages').is(':checked') ? 1 :
-                0; // Check if "With Images" is checked
+                    0; // Check if "With Images" is checked
 
-                if (styleIds && styleIds.length > 0) {
-                    $('.preloader').css('display', 'block'); // Show preloader
-
-                    $.ajax({
-                        url: baseURL +
-                            '/admin/api/update-vehicles', // The API route to fetch vehicles
-                        method: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}',
-                            style_ids: styleIds, // Send selected style IDs
-                            vehicles_limit: limit,
-                            with_images: withImages
-                        },
-                        success: function(response) {
-                            let vehicleSelect = $('#vehicle');
-                            vehicleSelect.empty(); // Clear existing vehicle options
-
-                            if (response.vehicles.length > 0) {
-                                $.each(response.vehicles, function(index, vehicle) {
-                                    vehicleSelect.append('<option value="' + vehicle
-                                        .id + '">' + vehicle.name + '</option>');
-                                });
-                                $('#vehicle-count').text(response.vehicles.length +
-                                    ' vehicles found.');
-                            } else {
-                                vehicleSelect.append(
-                                    '<option value="">No vehicles available</option>');
-                                $('#vehicle-count').text(
-                                    'No vehicles found for the selected styles.');
-                            }
-
-                            $('.preloader').css('display',
-                                'none');
-                        },
-                        error: function() {
-                            alert('Error fetching vehicles. Please try again.');
-                            $('.preloader').css('display', 'none'); // Hide preloader on error
-                        }
-                    });
-                } else {
-                    alert('Please select at least one style.');
+                if (!selectedYear) {
+                    alert('Please select a year first.');
+                    return;
                 }
+
+                let fetchData = {
+                    year: selectedYear,
+                    division_id: divisionId || null, // Optional: If division is selected
+                    model_id: modelId || null, // Optional: If model is selected
+                    style_ids: styleIds || [], // Optional: If styles are selected
+                    vehicles_limit: limit, // Vehicles limit (optional)
+                    with_images: withImages // With Images flag
+                };
+
+                const confirmed = confirm(
+                    `This will fetch all vehicles of the selected style(s). The number of API calls will be equal to the number of styles Are you sure, you want to continue?`
+                );
+
+                if (!confirmed) {
+                    // If the user cancels, prevent the request from proceeding
+                    event.preventDefault();
+                    return;
+                }
+                $('.preloader').css('display', 'block');
+
+                $.ajax({
+                    url: baseURL +
+                        '/admin/api/update-vehicles', // The API route to fetch vehicles
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        ...fetchData
+                    },
+                    success: function(response) {
+                        let vehicleSelect = $('#vehicle');
+                        vehicleSelect.empty(); // Clear existing vehicle options
+
+                        if (response.vehicles.length > 0) {
+                            $.each(response.vehicles, function(index, vehicle) {
+                                vehicleSelect.append('<option value="' + vehicle
+                                    .id + '">' + vehicle.name + '</option>');
+                            });
+                            $('#vehicle-count').text(response.vehicles.length +
+                                ' vehicles found.');
+                        } else {
+                            vehicleSelect.append(
+                                '<option value="">No vehicles available</option>');
+                            $('#vehicle-count').text(
+                                'No vehicles found for the selected styles.');
+                        }
+
+                        $('.preloader').css('display',
+                            'none');
+                    },
+                    error: function() {
+                        alert('Error fetching vehicles. Please try again.');
+                        $('.preloader').css('display', 'none'); // Hide preloader on error
+                    }
+                });
+
             });
 
 

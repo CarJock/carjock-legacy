@@ -43,7 +43,7 @@ class Style extends Model
 
     public function model()
     {
-        return $this->belongsToMany(ModelsModel::class);
+        return $this->belongsTo(ModelsModel::class);
     }
 
     public function images()
