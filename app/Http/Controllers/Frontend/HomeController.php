@@ -344,7 +344,7 @@ class HomeController extends Controller
 
         return view('frontend.search', [
             'vehicles' => $vehicles,
-            'years' => [date('Y') - 1, date('Y')],
+            'years' => [date('Y') - 1, date('Y'), date('Y') + 1, date('Y') + 2],
             'makes' => isset(request()->year) ? Division::where('year', request()->year)->groupBy('name')->get() : '',
             'models' => $models,
             'engine_types' => array_flip($this->types('engine_types')),
