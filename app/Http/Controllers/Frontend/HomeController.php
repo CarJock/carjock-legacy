@@ -95,7 +95,7 @@ class HomeController extends Controller
         }
 
         return view('frontend.home', [
-            'years' => [date('Y') - 1, date('Y')],
+            'years' => [date('Y') - 1, date('Y'), date('Y') + 1, date('Y') + 2],
             'makes' => isset(request()->year) ? Division::where('year', request()->year)->get() : '',
             'models' => isset(request()->make) ? Model::whereHas(function ($query) {
                 $query->where('name', request()->make);
