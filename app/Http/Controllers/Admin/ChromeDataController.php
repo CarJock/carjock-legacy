@@ -89,21 +89,13 @@ class ChromeDataController extends Controller
         $year = $request->input('year'); // Retrieve the selected year
 
         if ($divisionId === 'all') {
-            // Fetch all distinct models associated with divisions for the selected year
-            $models = Model::whereIn('division_id', function ($query) use ($year) {
-                $query->select('id')
-                    ->from('divisions')
-                    ->where('year', $year); // Assuming there is a year column in divisions
-            })
-                ->select('id', 'number', 'name')
-                ->distinct('number')
+
+            $models = Model::whereIn('division_id', Division::where('year', $year)->pluck('id')->toArray())
+                ->select('id', 'division_id', 'number', 'name')
                 ->get();
         } else {
-            // Fetch distinct models by division_id
-            $division = Division::findOrFail($divisionId);
-            $models = Model::where('division_id', $division->id)
-                ->select('id', 'number', 'name')
-                ->distinct('number')
+            $models = Model::where('division_id', $divisionId)
+                ->select('id', 'division_id', 'number', 'name')
                 ->get();
         }
 
@@ -309,9 +301,9 @@ class ChromeDataController extends Controller
 
     public function updateStyles(Request $request)
     {
-        $model_id = $request->input('model_id');
-        $model = Model::find($model_id);
-        $model_number = $model->number;
+        $modelId = $request->input('model_id');
+        $divisionId = $request->input('division_id');
+        $year = $request->input('year');
 
         $client = new \SoapClient('http://services.chromedata.com/Description/7c?wsdl');
         $account = [
@@ -321,39 +313,48 @@ class ChromeDataController extends Controller
             'language' => 'en'
         ];
 
-        $styles = $client->getStyles([
-            'accountInfo' => $account,
-            'modelId' => $model_number,
-        ]);
-
         $updatedStyles = [];
 
-        // Check if the API response is successful
-        if (isset($styles->responseStatus->responseCode) && $styles->responseStatus->responseCode == 'Successful') {
-            // Loop through each division from the response
-            foreach ($styles->style as $style) {
-                // Check if the division already exists for the same year
-                $existingModel = Style::where('number', $style->id)
-                    ->where('model_id', $model_id)
-                    ->first();
 
-                // If the division doesn't exist, create it
-                if (!$existingModel) {
-                    $newStyle = Style::create([
-                        'name' => $style->_,
-                        'number' => $style->id,
-                        'model_id' => $model_id
-                    ]);
+        if ($modelId == 'all') {
+            // Fetch division IDs based on the year
+            if ($divisionId == 'all') {
+                // Get all division IDs for the selected year
+                $divisionIds = Division::where('year', $year)->pluck('id')->toArray();
+            } else {
+                // Use the selected division ID
+                $divisionIds = [$divisionId];
+            }
+            // Get all model IDs from those divisions
+            $modelIds = Model::whereIn('division_id', $divisionIds)->pluck('id')->toArray();
+        } else {
+            // If a specific model is selected, use it
+            $modelIds = [$modelId];
+        }
 
-                    // Add the newly created division to the list of updated divisions
-                    $updatedStyles[] = $newStyle;
+        $models = Model::whereIn('id', $modelIds)->get();
+        
+        foreach ($models as $model) {
+            // Fetch styles for each model
+            $chromeStyles = $client->getStyles([
+                'accountInfo' => $account,
+                'modelId' => $model->number,
+            ]);
+
+            if (isset($chromeStyles->responseStatus->responseCode) && $chromeStyles->responseStatus->responseCode == 'Successful') {
+                foreach ($chromeStyles->style as $chromeStyle) {
+                    $existingStyle = Style::updateOrCreate(
+                        ['model_id' => $model->id, 'number' => $chromeStyle->id],
+                        ['name' => $chromeStyle->_]
+                    );
+                    $updatedStyles[] = $existingStyle;
                 }
             }
         }
-
-        // Return the list of newly created divisions
+        
         return response()->json(['styles' => $updatedStyles]);
     }
+
 
 
     public function updateVehicles(Request $request)

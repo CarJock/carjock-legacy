@@ -439,7 +439,7 @@
             // Handle division change to update models
             $('#division').change(function() {
                 let divisionId = $(this).val();
-                let selectedYear = $('#year').val();
+                let selectedYear = $('#year option:selected').val();
                 let selectedDivisionName = $('#division option:selected')
                     .text(); // Get the selected division's name
                 let modelSelect = $('#model');
@@ -462,11 +462,9 @@
                             });
                             $('#model-count').text('Models available: ' + response.models
                                 .length);
-                            $('#update-models').hide(); // Hide the button if models are found
                         } else {
                             modelSelect.append(
                                 '<option value="all">No Models Available</option>');
-                            alert('No models found for the selected division.');
                             $('#model-count').text('No models available.');
                             $('#update-models')
                                 .show(); // Show the button if no models are found
@@ -481,7 +479,7 @@
             // Handle model change to update styles
             $('#model').change(function() {
                 let modelId = $(this).val();
-                let selectedYear = $('#year').val();
+                let selectedYear = $('#year option:selected').val();
                 let selectedModelName = $('#model option:selected').text(); // Get the selected model's name
                 let selectedDivisionId = $('#division option:selected')
             .val(); // Get the selected model's name
@@ -509,7 +507,6 @@
                         } else {
                             styleSelect.append(
                                 '<option value="">No Styles Available</option>');
-                            alert('No styles found for the selected model.');
                             $('#style-count').text('No styles available.');
                             $('#update-styles').show();
                         }
@@ -519,7 +516,7 @@
 
             $('#style').change(function() {
                 let styleIds = $(this).val(); // Get the selected style IDs (multi-select)
-                let selectedYear = $('#year').val(); // Get the selected style IDs (multi-select)
+                let selectedYear = $('#year option:selected').val(); // Get the selected style IDs (multi-select)
                 let selectedModelId = $('#model option:selected').val(); // Get the selected model's name
                 let selectedDivisionId = $('#model option:selected').val(); // Get the selected model's name
                 let selectedModelName = $('#model option:selected').text(); // Get the selected model's name
@@ -581,7 +578,7 @@
 
             $('#update-models').click(function() {
                 let divisionId = $('#division').val();
-                let year = $('#year').val();
+                let year = $('#year option:selected').val();
                 if (divisionId && year) {
                     const confirmed = confirm(
                         `This will fetch all models of the selected year (${year}) and division(s) (${divisionId}). Are you sure? The number of API calls will be equal to the number of divisions`
@@ -631,7 +628,7 @@
             });
 
             $('#update-divisions').click(function() {
-                let year = $('#year').val();
+                let year = $('#year option:selected').val();
 
                 if (year) {
                     const confirmed = confirm(
@@ -684,6 +681,8 @@
             });
 
             $('#update-styles').click(function() {
+                let year = $('#year option:selected').val();
+                let divisionId = $('#division').val();
                 let modelId = $('#model').val();
                 if (modelId) {
                     const confirmed = confirm(
@@ -702,6 +701,8 @@
                         method: 'POST',
                         data: {
                             _token: '{{ csrf_token() }}',
+                            year: year,
+                            division_id: divisionId,
                             model_id: modelId
                         },
                         success: function(response) {
@@ -736,7 +737,7 @@
 
             $('#vehicle-update').click(function() {
 
-                let selectedYear = $('#year').val(); // Get selected year
+                let selectedYear = $('#year option:selected').val()
                 let divisionId = $('#division').val(); // Get selected division
                 let modelId = $('#model').val(); // Get selected model
                 let styleIds = $('#style').val(); // Get selected styles (multi-select)
