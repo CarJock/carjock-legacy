@@ -280,10 +280,10 @@
                                 '#style'); // Assuming this is your style dropdown
                             let modelCountLabel = $(
                                 '#model-count'
-                                ); // Assuming there's a label or element to display the model count
+                            ); // Assuming there's a label or element to display the model count
                             let styleCountLabel = $(
                                 '#style-count'
-                                ); // Assuming there's a label or element to display the style count
+                            ); // Assuming there's a label or element to display the style count
 
                             divisionDropdown.empty(); // Clear previous options
                             modelDropdown.empty(); // Clear previous model options
@@ -393,14 +393,14 @@
                                             error: function() {
                                                 alert(
                                                     'Error fetching styles. Please try again.'
-                                                    );
+                                                );
                                             }
                                         });
                                     },
                                     error: function() {
                                         alert(
                                             'Error fetching models. Please try again.'
-                                            );
+                                        );
                                     }
                                 });
 
@@ -482,7 +482,7 @@
                 let selectedYear = $('#year option:selected').val();
                 let selectedModelName = $('#model option:selected').text(); // Get the selected model's name
                 let selectedDivisionId = $('#division option:selected')
-            .val(); // Get the selected model's name
+                    .val(); // Get the selected model's name
 
                 $.ajax({
                     url: baseURL + '/admin/api/styles', // API route to fetch styles
@@ -516,7 +516,8 @@
 
             $('#style').change(function() {
                 let styleIds = $(this).val(); // Get the selected style IDs (multi-select)
-                let selectedYear = $('#year option:selected').val(); // Get the selected style IDs (multi-select)
+                let selectedYear = $('#year option:selected')
+            .val(); // Get the selected style IDs (multi-select)
                 let selectedModelId = $('#model option:selected').val(); // Get the selected model's name
                 let selectedDivisionId = $('#model option:selected').val(); // Get the selected model's name
                 let selectedModelName = $('#model option:selected').text(); // Get the selected model's name
@@ -748,6 +749,17 @@
                 if (!selectedYear) {
                     alert('Please select a year first.');
                     return;
+                }
+                if (!limit) {
+                    const confirmed = confirm(
+                        `Are you sure you want to go without limit!`
+                    );
+
+                    if (!confirmed) {
+                        // If the user cancels, prevent the request from proceeding
+                        event.preventDefault();
+                        return;
+                    }
                 }
 
                 let fetchData = {

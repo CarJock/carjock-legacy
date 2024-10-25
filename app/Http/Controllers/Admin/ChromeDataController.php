@@ -370,8 +370,7 @@ class ChromeDataController extends Controller
         $modelId = $request->input('model_id');
         $styleIds = $request->input('style_ids');
         $limit = $request->input('vehicles_limit'); // Default to 1000
-        $withImages = $request->input('free_pull') == 1;  // Handle free pull (images)
-
+        $withImages = $request->input('with_images') == 1;  // Handle free pull (images)
         // Initialize $styles to an empty collection
         $styles = collect();
 
