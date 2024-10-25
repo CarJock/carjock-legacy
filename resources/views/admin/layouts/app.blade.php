@@ -744,6 +744,7 @@
                 let styleIds = $('#style').val(); // Get selected styles (multi-select)
                 let limit = $('#limit').val(); // Get vehicles limit
                 let withImages = $('#withImages').is(':checked') ? 1 :
+                let override = $('#override').is(':checked') ? 1 :
                     0; // Check if "With Images" is checked
 
                 if (!selectedYear) {
@@ -768,7 +769,8 @@
                     model_id: modelId || null, // Optional: If model is selected
                     style_ids: styleIds || [], // Optional: If styles are selected
                     vehicles_limit: limit, // Vehicles limit (optional)
-                    with_images: withImages // With Images flag
+                    with_images: withImages, 
+                    override: override
                 };
 
                 const confirmed = confirm(
