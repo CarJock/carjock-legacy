@@ -743,9 +743,8 @@
                 let modelId = $('#model').val(); // Get selected model
                 let styleIds = $('#style').val(); // Get selected styles (multi-select)
                 let limit = $('#limit').val(); // Get vehicles limit
-                let withImages = $('#withImages').is(':checked') ? 1 :
-                let override = $('#override').is(':checked') ? 1 :
-                    0; // Check if "With Images" is checked
+                let withImages = $('#withImages').is(':checked') ? 1 :0;
+                let withOverride = $('#override').is(':checked') ? 1 :0;
 
                 if (!selectedYear) {
                     alert('Please select a year first.');
@@ -770,7 +769,7 @@
                     style_ids: styleIds || [], // Optional: If styles are selected
                     vehicles_limit: limit, // Vehicles limit (optional)
                     with_images: withImages, 
-                    override: override
+                    override: withOverride
                 };
 
                 const confirmed = confirm(
