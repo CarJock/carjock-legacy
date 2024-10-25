@@ -333,7 +333,7 @@ class ChromeDataController extends Controller
         }
 
         $models = Model::whereIn('id', $modelIds)->get();
-        
+
         foreach ($models as $model) {
             // Fetch styles for each model
             $chromeStyles = $client->getStyles([
@@ -351,7 +351,7 @@ class ChromeDataController extends Controller
                 }
             }
         }
-        
+
         return response()->json(['styles' => $updatedStyles]);
     }
 
@@ -369,8 +369,9 @@ class ChromeDataController extends Controller
         $divisionId = $request->input('division_id');
         $modelId = $request->input('model_id');
         $styleIds = $request->input('style_ids');
-        $limit = $request->input('vehicles_limit'); // Default to 1000
-        $withImages = $request->input('with_images') == 1;  // Handle free pull (images)
+        $limit = $request->input('vehicles_limit');
+        $withImages = $request->input('with_images') == 1;
+        $override = $request->input('override') == 1;
         // Initialize $styles to an empty collection
         $styles = collect();
 
@@ -394,16 +395,22 @@ class ChromeDataController extends Controller
             }
 
             // Fetch styles for the selected models, apply the limit only if it's not null
-            $stylesQuery = Style::whereIn('model_id', $modelIds)->whereDump(0);
+            $stylesQuery = Style::whereIn('model_id', $modelIds);
             if ($limit) {
                 $stylesQuery->limit($limit);
+            }
+            if (!$override) {
+                $stylesQuery->whereDump(0);
             }
             $styles = $stylesQuery->get();
         } else {
             // Fetch specific styles based on style_ids
-            $stylesQuery = Style::whereIn('id', $styleIds)->whereDump(0);
+            $stylesQuery = Style::whereIn('id', $styleIds);
             if ($limit) {
                 $stylesQuery->limit($limit);
+            }
+            if (!$override) {
+                $stylesQuery->whereDump(0);
             }
             $styles = $stylesQuery->get();
         }
@@ -421,10 +428,12 @@ class ChromeDataController extends Controller
 
             if (isset($chromdataVehicle->responseStatus->responseCode) && $chromdataVehicle->responseStatus->responseCode == 'Successful') {
 
-                $fuel_type = $this->createFuelType($chromdataVehicle->engine);
-                $engine_type = $this->createEngineType($chromdataVehicle->engine);
                 $vehicle = Vehicle::where('style_id', $style->id)->first();
                 if (!$vehicle) {
+
+                    $fuel_type = $this->createFuelType($chromdataVehicle->engine);
+                    $engine_type = $this->createEngineType($chromdataVehicle->engine);
+                    
                     $vehicle = Vehicle::create([
                         'style_id' => $style->id,
                         'style_number' => $style->number,
@@ -436,6 +445,15 @@ class ChromeDataController extends Controller
                         'data' => json_encode($chromdataVehicle),
                         'image' => $cover_image,
                     ]);
+                } else {
+                    if ($override) {
+                        $vehicle->style_number = $style->number;
+                        $vehicle->name = $chromdataVehicle->modelYear . ' ' . $chromdataVehicle->style->division->_ . ' ' . $chromdataVehicle->style->model->_ . ' ' . $chromdataVehicle->style->name;
+                        $vehicle->year = $chromdataVehicle->modelYear;
+                        $vehicle->body_type = is_array($chromdataVehicle->style->bodyType) ? $chromdataVehicle->style->bodyType[0]->_ : $chromdataVehicle->style->bodyType->_;
+                        $vehicle->data = json_encode($chromdataVehicle);
+                        $vehicle->image = $cover_image;
+                    }
                 }
 
                 $this->updateVehicleWithTechnicalInfo($vehicle, $chromdataVehicle);
