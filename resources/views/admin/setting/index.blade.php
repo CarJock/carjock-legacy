@@ -167,6 +167,13 @@
                                             <label class="form-check-label" for="override">Override?</label>
                                         </div>
                                     </div>
+                                    <div class="col-md-12">
+                                        <div class="form-check mt-3">
+                                            <input type="checkbox" class="form-check-input" id="onlyImages"
+                                                name="onlyImages">
+                                            <label class="form-check-label" for="onlyImages">Only Images</label>
+                                        </div>
+                                    </div>
                                     <!-- Fetch Vehicles Button -->
                                     <div class="col-md-12">
                                         <button class="btn btn-sm btn-primary mt-2" id="vehicle-update" type="button" style="width: auto; width:100%">

@@ -372,6 +372,7 @@ class ChromeDataController extends Controller
         $limit = $request->input('vehicles_limit');
         $withImages = $request->input('with_images') == 1;
         $override = $request->input('override') == 1;
+        $onlyImages = $request->input('only_images') == 1;
         // Initialize $styles to an empty collection
         $styles = collect();
 
@@ -417,23 +418,22 @@ class ChromeDataController extends Controller
 
         foreach ($styles as $style) {
 
-            $cover_image = $withImages ? $this->fetchVehicleImages($style->number) : null;
+            $vehicle = Vehicle::where('style_id', $style->id)->first();
 
-            $chromdataVehicle = $client->describeVehicle([
-                'accountInfo' => $account,
-                'styleId' => $style->number,
-                'switch' => ['ShowExtendedDescriptions', 'ShowExtendedTechnicalSpecifications', 'IncludeDefinitions', 'ShowAvailableEquipment'],
-                'SwitchChromeMediaGallery' => 'Both'
-            ]);
+            if (!$vehicle) {
 
-            if (isset($chromdataVehicle->responseStatus->responseCode) && $chromdataVehicle->responseStatus->responseCode == 'Successful') {
+                $chromdataVehicle = $client->describeVehicle([
+                    'accountInfo' => $account,
+                    'styleId' => $style->number,
+                    'switch' => ['ShowExtendedDescriptions', 'ShowExtendedTechnicalSpecifications', 'IncludeDefinitions', 'ShowAvailableEquipment'],
+                    'SwitchChromeMediaGallery' => 'Both'
+                ]);
 
-                $vehicle = Vehicle::where('style_id', $style->id)->first();
-                if (!$vehicle) {
-
+                if (isset($chromdataVehicle->responseStatus->responseCode) && $chromdataVehicle->responseStatus->responseCode == 'Successful') {
                     $fuel_type = $this->createFuelType($chromdataVehicle->engine);
                     $engine_type = $this->createEngineType($chromdataVehicle->engine);
-                    
+                    $cover_image = $withImages ? $this->fetchVehicleImages($style->number) : null;
+
                     $vehicle = Vehicle::create([
                         'style_id' => $style->id,
                         'style_number' => $style->number,
@@ -442,26 +442,42 @@ class ChromeDataController extends Controller
                         'name' => $chromdataVehicle->modelYear . ' ' . $chromdataVehicle->style->division->_ . ' ' . $chromdataVehicle->style->model->_ . ' ' . $chromdataVehicle->style->name,
                         'year' => $chromdataVehicle->modelYear,
                         'body_type' => is_array($chromdataVehicle->style->bodyType) ? $chromdataVehicle->style->bodyType[0]->_ : $chromdataVehicle->style->bodyType->_,
-                        'data' => json_encode($chromdataVehicle),
-                        'image' => $cover_image,
+                        'data' => json_encode($chromdataVehicle)
                     ]);
-                } else {
-                    if ($override) {
+
+                    $this->updateVehicleWithTechnicalInfo($vehicle, $chromdataVehicle);
+                }
+            } else {
+                if ($override) {
+
+                    $chromdataVehicle = $client->describeVehicle([
+                        'accountInfo' => $account,
+                        'styleId' => $style->number,
+                        'switch' => ['ShowExtendedDescriptions', 'ShowExtendedTechnicalSpecifications', 'IncludeDefinitions', 'ShowAvailableEquipment'],
+                        'SwitchChromeMediaGallery' => 'Both'
+                    ]);
+
+                    if (isset($chromdataVehicle->responseStatus->responseCode) && $chromdataVehicle->responseStatus->responseCode == 'Successful') {
+
                         $vehicle->style_number = $style->number;
                         $vehicle->name = $chromdataVehicle->modelYear . ' ' . $chromdataVehicle->style->division->_ . ' ' . $chromdataVehicle->style->model->_ . ' ' . $chromdataVehicle->style->name;
                         $vehicle->year = $chromdataVehicle->modelYear;
                         $vehicle->body_type = is_array($chromdataVehicle->style->bodyType) ? $chromdataVehicle->style->bodyType[0]->_ : $chromdataVehicle->style->bodyType->_;
                         $vehicle->data = json_encode($chromdataVehicle);
-                        $vehicle->image = $cover_image;
                     }
+                    $cover_image = $withImages ? $this->fetchVehicleImages($style->number) : null;
+                    $vehicle->image = $cover_image;
                 }
 
-                $this->updateVehicleWithTechnicalInfo($vehicle, $chromdataVehicle);
-
-                // Mark style as dumped
-                $style->dump = 1;
-                $style->save();
+                if ($onlyImages) {
+                    $cover_image = $this->fetchVehicleImages($style->number);
+                    $vehicle->image = $cover_image;
+                }
             }
+
+            // Mark style as dumped
+            $style->dump = 1;
+            $style->save();
         }
 
         // Fetch and return the updated vehicles

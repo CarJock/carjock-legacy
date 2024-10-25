@@ -685,6 +685,7 @@
                 let year = $('#year option:selected').val();
                 let divisionId = $('#division').val();
                 let modelId = $('#model').val();
+                let withOverride = $('#override').is(':checked') ? 1 :0;
                 if (modelId) {
                     const confirmed = confirm(
                         `This will fetch all styles of the selected model (${modelId}). The number of API calls will be equal to the number of models Are you sure?`
@@ -704,7 +705,8 @@
                             _token: '{{ csrf_token() }}',
                             year: year,
                             division_id: divisionId,
-                            model_id: modelId
+                            model_id: modelId,
+                            override: withOverride
                         },
                         success: function(response) {
                             let styleSelect = $('#style'); // Select the style dropdown
@@ -745,6 +747,7 @@
                 let limit = $('#limit').val(); // Get vehicles limit
                 let withImages = $('#withImages').is(':checked') ? 1 :0;
                 let withOverride = $('#override').is(':checked') ? 1 :0;
+                let onlyImages = $('#onlyImages').is(':checked') ? 1 :0;
 
                 if (!selectedYear) {
                     alert('Please select a year first.');
@@ -769,7 +772,8 @@
                     style_ids: styleIds || [], // Optional: If styles are selected
                     vehicles_limit: limit, // Vehicles limit (optional)
                     with_images: withImages, 
-                    override: withOverride
+                    override: withOverride,
+                    only_images: onlyImages
                 };
 
                 const confirmed = confirm(
