@@ -38,43 +38,56 @@ class CompareController extends Controller
 
     public function getGarageVehicles(Request $request)
     {
-        // Check if user is logged in
+        $garageVehicles = collect([]);
         if (auth()->check()) {
-            // Get the logged-in user's ID
             $userId = auth()->id();
-
-            // Retrieve vehicles where the type is 'garage' for the logged-in user
             $garageVehicles = DB::table('user_vehicle')
                 ->where('user_id', $userId)
                 ->where('type', 'garage')
                 ->join('vehicles', 'vehicles.id', '=', 'user_vehicle.vehicle_id')
-                ->select('vehicles.*')
+                ->select('vehicles.id', 'vehicles.name')
                 ->get();
         }
 
         return response()->json($garageVehicles->map(function ($uv) {
-            return ['id' => $uv->id, 'text' => $uv->name];
+            return [
+                'id' => $uv->id,
+                'text' => $uv->name,
+                'note' => 'My Garage Item'
+            ];
         }));
     }
 
 
 
+
+
     public function searchCars(Request $request)
     {
-        $search = $request->input('search'); // The search term
-        $page = $request->input('page', 1);  // Current page, default to 1
-        $perPage = 10; // Number of items per page
+        $search = $request->input('search');
+        $page = $request->input('page', 1);
+        $perPage = 50;
 
-        // Use full-text search on the 'name' column
+        // Attempt to extract a year (four-digit number) from the search term
+        preg_match('/\b(19|20)\d{2}\b/', $search, $yearMatch);
+        $year = $yearMatch[0] ?? null;
+
+        // Build the query with full-text search and prioritize by year
         $query = Vehicle::selectRaw("*, MATCH(name) AGAINST(? IN BOOLEAN MODE) as relevance", [$search])
             ->whereRaw("MATCH(name) AGAINST(? IN BOOLEAN MODE)", [$search])
             ->with('user')
-            ->orderByDesc('relevance'); // Order by relevance score
+            ->when($year, function ($query) use ($year) {
+                // Filter results to the extracted year if a year is found
+                return $query->where('year', $year);
+            }, function ($query) {
+                // Otherwise, order by year in descending order
+                return $query->orderBy('year', 'desc');
+            })
+            ->orderByDesc('relevance');
 
-        // Get the results for the current page
+        // Paginate and transform results for select2
         $cars = $query->paginate($perPage, ['*'], 'page', $page);
 
-        // Transform the data for select2
         $results = [
             'items' => $cars->items(),
             'hasMore' => $cars->hasMorePages()
@@ -82,6 +95,8 @@ class CompareController extends Controller
 
         return response()->json($results);
     }
+
+
 
 
     public function getCarById($id)

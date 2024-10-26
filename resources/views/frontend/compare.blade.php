@@ -1358,6 +1358,12 @@
 
 @push('styles')
 <style>
+
+.select2-results__option i {
+    font-style: italic !important;
+    color: #FF5733 !important; /* Use a bold color, adjust as needed */
+    font-weight: bold;         /* Make the text bold for extra emphasis */
+}
 .select-vehicle {
     cursor: pointer;
 }

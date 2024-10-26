@@ -1051,12 +1051,50 @@ section.detail-sec h3 {
 @push('script')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/4.3.3/js/swiper.min.js"></script>
 <script>
-$(document).ready(function() {
+$(document).ready(function () {
+    // Hide navigation buttons if there are fewer than 5 thumbnails
     if ($(".product-thumbs .swiper-slide").length <= 5) {
         $(".swiper-button-next").hide();
         $(".swiper-button-prev").hide();
     }
-})
+
+    // Initialize the main product slider
+    var productSlider = new Swiper('.product-slider', {
+        spaceBetween: 0,
+        centeredSlides: false,
+        loop: false,
+        direction: 'horizontal',
+        slidesPerView: 1,
+        navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+        },
+        resizeObserver: true,
+    });
+
+    // Initialize the thumbnail slider
+    var productThumbs = new Swiper('.product-thumbs', {
+        spaceBetween: 10,  // Adjust as needed
+        centeredSlides: true,
+        slidesPerView: 5,  // Show 5 thumbnails at a time on desktop
+        direction: 'horizontal',
+        slideToClickedSlide: true,
+        loop: false,
+        watchSlidesVisibility: true,
+        watchSlidesProgress: true,
+        observer: true,
+    });
+
+    // Link the two sliders
+    productSlider.controller.control = productThumbs;
+    productThumbs.controller.control = productSlider;
+
+    // Initialize fancybox for image display
+    $("[data-fancybox='images']").fancybox({
+        buttons: ["slideShow", "fullScreen", "thumbs", "close"],
+    });
+});
+
 
 $.get("{{ route('frontend.vehicle.detail', $id) }}", function(data, status) {
     $('.tableinnercols').each(function() {
@@ -1259,59 +1297,8 @@ $.get("{{ route('frontend.vehicle.detail', $id) }}", function(data, status) {
     }*/
 });
 
-if ($(".product-left").length) {
-  var productSlider = new Swiper('.product-slider', {
-    spaceBetween: 0,
-    centeredSlides: false,
-    loop: false,
-    direction: 'horizontal',
-    // Responsive options for slidesPerView based on screen width
-    slidesPerView: 'auto',
-    breakpoints: {
-      // Adjust these breakpoints as needed for your specific design
-      640: {
-        slidesPerView: 1,
-      },
-      1024: {
-        slidesPerView: 3,
-      }
-    },
-    navigation: {
-      nextEl: ".swiper-button-next",
-      prevEl: ".swiper-button-prev",
-    },
-    resizeObserver: true,
-  });
+if ($(".product-left").length) {}
 
-  var productThumbs = new Swiper('.product-thumbs', {
-    spaceBetween: 0,
-    centeredSlides: true,
-    loop: true,
-    slideToClickedSlide: true,
-    direction: 'horizontal',
-    slidesPerView: 'auto', // Adjust as needed for desired number of thumbnails on mobile
-    // Hide thumbnails on desktop using a media query
-    watchOverflow: true,
-    visibilityFullFit: true,
-    observer: true, // Ensure responsive behavior with dynamic content
-    breakpoints: {
-      // Adjust these breakpoints as needed
-      1024: {
-        slidesPerView: 5, // Show thumbnails on desktop
-        visibilityFullFit: false, // Allow overflow
-      }
-    },
-  });
-
-  // Link the sliders for synchronized navigation
-  productSlider.controller.control = productThumbs;
-  productThumbs.controller.control = productSlider;
-}
-
-$(document).ready(function() {
-    $("[data-fancybox='images']").fancybox({
-        buttons: ["slideShow", "fullScreen", "thumbs", "close"],
-    });
-});
+$(document).ready(function() {});
 </script>
 @endpush

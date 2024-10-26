@@ -253,6 +253,8 @@ class HomeController extends Controller
 
         // Generate a unique cache key based on the search parameters
         $cacheKey = 'vehicles_search_' . md5(json_encode(request()->all()));
+        // Check if the 'recache' parameter is present to bypass the cache
+        $forceRecache = request()->input('recache') === 'true';
 
         // Check if the results for this search are already cached
         $vehicles = Cache::remember($cacheKey, now()->addDays(30), function () use ($year, $make, $model, $up_range, $down_range, $find, $search, $sort, $sort_type) {
@@ -328,12 +330,12 @@ class HomeController extends Controller
                     }
                 }
             }
-
-            return $vehiclesQuery->orderBy('created_at', 'desc')
+            return $vehiclesQuery
+                // ->orderBy('created_at', 'desc')
                 ->orderBy($sort, $sort_type)
                 ->paginate(12)
                 ->withQueryString();
-        });
+        }, $forceRecache ? now() : now()->addDays(30));
 
         $models = '';
         if (isset(request()->make)) {
