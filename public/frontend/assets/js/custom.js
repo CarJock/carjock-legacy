@@ -1329,7 +1329,7 @@ $(window).on('load', function () {
                                 results: data.items.map(function (car) {  // Map the data into select2 format
                                     return {
                                         id: car.id,
-                                        text: car.name, // The field to display in the dropdown
+                                        text: car.name, 
                                         data: car
                                     };
                                 }),
@@ -1340,18 +1340,25 @@ $(window).on('load', function () {
                         } else {
 
                             return {
-                                results: garageVehicles, // Only show pre-populated items
+                                results: garageVehicles.map(function (car) {  // Map the data to id and text for Select2
+                                    return {
+                                        id: car.id,
+                                        text: car.text + ' <i>(My Garage Item)</i>'  // Append "My Garage Item" or any specific text if needed
+                                    };
+                                }),
                                 pagination: {
-                                    more: false // No more results since it's not a search
+                                    more: false // Indicate there are no more results when garageVehicles are shown
                                 }
                             };
+
                         }
                     },
                     cache: true // Cache the results for faster subsequent queries
                 },
-                minimumInputLength: 0, // Start searching after entering 2 or more characters
-                placeholder: 'Search for a vehicle', // Placeholder text
-                allowClear: true // Option to clear the selection
+                escapeMarkup: function (markup) { return markup; },
+                minimumInputLength: 0,
+                placeholder: 'Search for a vehicle',
+                allowClear: true
             })
                 .on('change', function (e) {
                     $('.resetfiltersettings').fadeIn();
