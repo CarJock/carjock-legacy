@@ -442,7 +442,8 @@ class ChromeDataController extends Controller
                         'name' => $chromdataVehicle->modelYear . ' ' . $chromdataVehicle->style->division->_ . ' ' . $chromdataVehicle->style->model->_ . ' ' . $chromdataVehicle->style->name,
                         'year' => $chromdataVehicle->modelYear,
                         'body_type' => is_array($chromdataVehicle->style->bodyType) ? $chromdataVehicle->style->bodyType[0]->_ : $chromdataVehicle->style->bodyType->_,
-                        'data' => json_encode($chromdataVehicle)
+                        'data' => json_encode($chromdataVehicle),
+                        'image' => $cover_image
                     ]);
 
                     $this->updateVehicleWithTechnicalInfo($vehicle, $chromdataVehicle);
@@ -465,14 +466,15 @@ class ChromeDataController extends Controller
                         $vehicle->body_type = is_array($chromdataVehicle->style->bodyType) ? $chromdataVehicle->style->bodyType[0]->_ : $chromdataVehicle->style->bodyType->_;
                         $vehicle->data = json_encode($chromdataVehicle);
                     }
-                    $cover_image = $withImages ? $this->fetchVehicleImages($style->number) : null;
-                    $vehicle->image = $cover_image;
+                    if ($onlyImages) {
+                        $cover_image = $this->fetchVehicleImages($style->number);
+                        $vehicle->image = $cover_image;
+                    } else {
+                        $cover_image = $withImages ? $this->fetchVehicleImages($style->number) : null;
+                        $vehicle->image = $cover_image;
+                    }
                 }
 
-                if ($onlyImages) {
-                    $cover_image = $this->fetchVehicleImages($style->number);
-                    $vehicle->image = $cover_image;
-                }
             }
 
             // Mark style as dumped
