@@ -18,84 +18,27 @@ use Illuminate\Support\Facades\Validator;
 
 class ChromeDataController extends Controller
 {
-    public function handleJob(Request $request)
-    {
-        // Validate the request
-        $v = Validator::make($request->all(), [
-            'year' => 'required',
-            'division' => 'required',
-            'model' => 'required',
-            'style' => 'required|array',
-        ]);
-
-        // Variables to repopulate models and styles if validation fails
-        $models = [];
-        $styles = [];
-        $selectedDivisionName = null;
-        $selectedModelName = null;
-
-        // If validation fails
-        if ($v->fails()) {
-            // Repopulate models if a division is selected
-            if ($request->has('division')) {
-                $selectedDivision = Division::find($request->input('division'));
-                if ($selectedDivision) {
-                    $selectedDivisionName = $selectedDivision->name;
-                    $models = Model::where('division_id', $selectedDivision->id)->get();
-                }
-            }
-
-            // Repopulate styles if a model is selected
-            if ($request->has('model')) {
-                $selectedModel = Model::find($request->input('model'));
-                if ($selectedModel) {
-                    $selectedModelName = $selectedModel->name;
-                    $styles = Style::where('model_id', $selectedModel->id)->get();
-                }
-            }
-
-            // Use session flash to store the data
-            session()->flash('models', $models);
-            session()->flash('styles', $styles);
-            session()->flash('selectedDivisionName', $selectedDivisionName);
-            session()->flash('selectedModelName', $selectedModelName);
-
-            // Redirect back with errors and input
-            return redirect()->back()
-                ->withErrors($v->errors())
-                ->withInput();
-        }
-
-        // Proceed with the rest of your logic...
-        $year = $request->input('year');
-        $division = $request->input('division');
-        $freePull = $request->input('free_pull', false); // Checkbox for free pull, default to false
-
-        if ($freePull) {
-            PullVehiclesJob::dispatch($year, $division, true);
-        } else {
-            PullVehiclesJob::dispatch($year, $division, false);
-        }
-
-        return back()->with([
-            'message' => 'The vehicle pull job has been initiated successfully.',
-            'alert-type' => 'success',
-        ]);
-    }
 
     public function getModelsByDivision(Request $request)
     {
         $divisionId = $request->input('division_id');
         $year = $request->input('year'); // Retrieve the selected year
 
-        if ($divisionId === 'all') {
 
+        // Use division_id for year 2025 and above
+        if ($divisionId === 'all') {
             $models = Model::whereIn('division_id', Division::where('year', $year)->pluck('id')->toArray())
-                ->select('id', 'division_id', 'number', 'name')
+                ->join('divisions', 'models.division_id', '=', 'divisions.id') // Use divisions.id
+                ->select('models.id', 'models.division_id', 'models.number', 'models.name', 'divisions.name as division_name')
+                ->orderBy('division_name', 'asc')
+                ->orderBy('models.number', 'asc')
                 ->get();
         } else {
             $models = Model::where('division_id', $divisionId)
-                ->select('id', 'division_id', 'number', 'name')
+                ->join('divisions', 'models.division_id', '=', 'divisions.id') // Use divisions.id
+                ->select('models.id', 'models.division_id', 'models.number', 'models.name', 'divisions.name as division_name')
+                ->orderBy('division_name', 'asc')
+                ->orderBy('models.number', 'asc')
                 ->get();
         }
 
@@ -103,28 +46,38 @@ class ChromeDataController extends Controller
     }
 
 
+
+
+
     public function getStylesByModel(Request $request)
     {
         $year = $request->input('year');
-        $modelId = $request->input('model_id');
+        $modelIds = $request->input('model_id'); // model_id is now an array
         $divisionId = $request->input('division_id');
-        // Fetch division IDs for the selected year
+
+        // Fetch division IDs for the selected year if all divisions are selected
         if ($divisionId == 'all') {
             $divisionIds = Division::where('year', $year)->pluck('id')->toArray();
         }
 
-        if ($modelId === 'all') {
+        // If model IDs are not specified, are empty, or set to 'all'
+        if ((is_array($modelIds) && in_array('all', $modelIds) || $modelIds == 'all')) {
             if ($divisionId && $divisionId != 'all') {
-                $modleIds = Model::where('division_id', $divisionId)->pluck('id')->toArray();
+                // Fetch model IDs for the specified division
+                $modelIds = Model::where('division_id', $divisionId)->pluck('id')->toArray();
             } else {
-                $modleIds = Model::whereIn('division_id', $divisionIds)->pluck('id')->toArray();
+                // Fetch model IDs for all divisions in the specified year
+                $modelIds = Model::whereIn('division_id', $divisionIds)->pluck('id')->toArray();
             }
-            // Fetch styles for all models of the selected division IDs
-            $styles = Style::whereIn('model_id', $modleIds)->get();
         } else {
-            // Fetch styles related to the selected model
-            $styles = Style::where('model_id', $modelId)->get();
+            // model_id has specific IDs, so we use them directly
+            $modelIds = is_array($modelIds) ? $modelIds : [$modelIds];
         }
+
+        // Fetch styles for the selected model IDs
+        $styles = Style::whereIn('model_id', $modelIds)
+            ->orderBy('number', 'asc')
+            ->get();
 
         return response()->json(['styles' => $styles]);
     }
@@ -216,11 +169,13 @@ class ChromeDataController extends Controller
 
                 if (isset($chromeModels->responseStatus->responseCode) && $chromeModels->responseStatus->responseCode == 'Successful') {
                     foreach ($chromeModels->model as $chromeModel) {
-                        $existingModel = Model::updateOrCreate(
-                            ['division_id' => $division->id, 'number' => $chromeModel->id],
-                            ['name' => $chromeModel->_]
-                        );
-                        $updatedModels[] = $existingModel;
+                        if (isset($chromeModel->id) && isset($chromemModel->_)) {
+                            $existingModel = Model::updateOrCreate(
+                                ['division_id' => $division->id, 'number' => $chromeModel->id],
+                                ['name' => $chromeModel->_]
+                            );
+                            $updatedModels[] = $existingModel;
+                        }
                     }
                 }
             }
@@ -229,19 +184,21 @@ class ChromeDataController extends Controller
             $division = Division::where('id', $divisionId)->where('year', $year)->firstOrFail();
 
             // Fetch models for the specific division
-            $models = $client->getModels([
+            $chromemModels = $client->getModels([
                 'accountInfo' => $account,
                 'modelYear' => $year,
                 'divisionId' => $division->number
             ]);
 
-            if (isset($models->responseStatus->responseCode) && $models->responseStatus->responseCode == 'Successful') {
-                foreach ($models->model as $model) {
-                    $existingModel = Model::updateOrCreate(
-                        ['division_id' => $division->id, 'number' => $model->id],
-                        ['name' => $model->_]
-                    );
-                    $updatedModels[] = $existingModel;
+            if (isset($chromemModels->responseStatus->responseCode) && $chromemModels->responseStatus->responseCode == 'Successful') {
+                foreach ($chromemModels->model as $chromeModel) {
+                    if (isset($chromeModel->id) && isset($chromemModel->_)) {
+                        $existingModel = Model::updateOrCreate(
+                            ['division_id' => $division->id, 'number' => $chromeModel->id],
+                            ['name' => $chromeModel->_]
+                        );
+                        $updatedModels[] = $existingModel;
+                    }
                 }
             }
         }
@@ -343,11 +300,13 @@ class ChromeDataController extends Controller
 
             if (isset($chromeStyles->responseStatus->responseCode) && $chromeStyles->responseStatus->responseCode == 'Successful') {
                 foreach ($chromeStyles->style as $chromeStyle) {
-                    $existingStyle = Style::updateOrCreate(
-                        ['model_id' => $model->id, 'number' => $chromeStyle->id],
-                        ['name' => $chromeStyle->_]
-                    );
-                    $updatedStyles[] = $existingStyle;
+                    if (isset($chromeStyle->id) && isset($chromeStyle->_)) {
+                        $existingStyle = Style::updateOrCreate(
+                            ['model_id' => $model->id, 'number' => $chromeStyle->id],
+                            ['name' => $chromeStyle->_]
+                        );
+                        $updatedStyles[] = $existingStyle;
+                    }
                 }
             }
         }
@@ -405,9 +364,9 @@ class ChromeDataController extends Controller
             }
             $styles = $stylesQuery->get();
         } else {
-            // Fetch specific styles based on style_ids
             $stylesQuery = Style::whereIn('id', $styleIds);
             if ($limit) {
+
                 $stylesQuery->limit($limit);
             }
             if (!$override) {
@@ -474,7 +433,6 @@ class ChromeDataController extends Controller
                         $vehicle->image = $cover_image;
                     }
                 }
-
             }
 
             // Mark style as dumped

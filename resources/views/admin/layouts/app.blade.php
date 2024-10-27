@@ -306,7 +306,7 @@
                                 $('#update-vehicle').show();
 
                                 // Reset models and styles if divisions are available
-                                modelDropdown.append('<option value="all">All Models</option>');
+                                modelDropdown.append('<option selected value="all">All Models</option>');
                                 styleDropdown.append(
                                     '<option selected value="all">All Styles</option>');
 
@@ -326,8 +326,8 @@
                                                 modelDropdown.append(
                                                     '<option value="' +
                                                     model.id + '">' +
-                                                    model.name +
-                                                    '</option>');
+                                                    model.name + ' ( ' +
+                                                    model.number + ')' + '</option>');
                                             });
 
                                             // Update the model count
@@ -363,13 +363,7 @@
                                                             style) {
                                                             styleDropdown
                                                                 .append(
-                                                                    '<option value="' +
-                                                                    style
-                                                                    .id +
-                                                                    '">' +
-                                                                    style
-                                                                    .name +
-                                                                    '</option>'
+                                                                    '<option value="' + style.id + '">' + style.name + ' ( ' + style.number + ')' + '</option>'
                                                                 );
                                                         });
                                                     // Update the style count
@@ -458,7 +452,8 @@
                             modelSelect.append('<option value="all">All Models</option>');
                             $.each(response.models, function(key, model) {
                                 modelSelect.append('<option value="' + model.id + '">' +
-                                    model.name + '</option>');
+                                    model.name + ' (' + model.number + ')' +
+                                    '</option>');
                             });
                             $('#model-count').text('Models available: ' + response.models
                                 .length);
@@ -499,7 +494,8 @@
                         if (response.styles.length > 0) {
                             $.each(response.styles, function(key, style) {
                                 styleSelect.append('<option value="' + style.id + '">' +
-                                    style.name + '</option>');
+                                    style.name + ' (' + style.number + ')' +
+                                    '</option>');
                             });
                             // Alert the user or display the count message
                             $('#style-count').text('Styles available: ' + response.styles
@@ -517,7 +513,7 @@
             $('#style').change(function() {
                 let styleIds = $(this).val(); // Get the selected style IDs (multi-select)
                 let selectedYear = $('#year option:selected')
-            .val(); // Get the selected style IDs (multi-select)
+                    .val(); // Get the selected style IDs (multi-select)
                 let selectedModelId = $('#model option:selected').val(); // Get the selected model's name
                 let selectedDivisionId = $('#model option:selected').val(); // Get the selected model's name
                 let selectedModelName = $('#model option:selected').text(); // Get the selected model's name
@@ -607,7 +603,8 @@
                             if (response.models.length > 0) {
                                 $.each(response.models, function(index, model) {
                                     modelSelect.append('<option value="' + model.id +
-                                        '">' + model.name + '</option>');
+                                        '">' + model.name + ' (' + model.number +
+                                        ')' + '</option>');
                                 });
                                 $('#model-count').text(response.models.length +
                                     ' models updated.');
@@ -685,7 +682,7 @@
                 let year = $('#year option:selected').val();
                 let divisionId = $('#division').val();
                 let modelId = $('#model').val();
-                let withOverride = $('#override').is(':checked') ? 1 :0;
+                let withOverride = $('#override').is(':checked') ? 1 : 0;
                 if (modelId) {
                     const confirmed = confirm(
                         `This will fetch all styles of the selected model (${modelId}). The number of API calls will be equal to the number of models Are you sure?`
@@ -715,7 +712,8 @@
                             if (response.styles.length > 0) {
                                 $.each(response.styles, function(index, style) {
                                     styleSelect.append('<option value="' + style.id +
-                                        '">' + style.name + '</option>');
+                                        '">' + style.name + ' (' + style.number +
+                                        ')' + '</option>');
                                 });
                                 $('#style-count').text(response.styles.length +
                                     ' styles updated.');
@@ -745,9 +743,9 @@
                 let modelId = $('#model').val(); // Get selected model
                 let styleIds = $('#style').val(); // Get selected styles (multi-select)
                 let limit = $('#limit').val(); // Get vehicles limit
-                let withImages = $('#withImages').is(':checked') ? 1 :0;
-                let withOverride = $('#override').is(':checked') ? 1 :0;
-                let onlyImages = $('#onlyImages').is(':checked') ? 1 :0;
+                let withImages = $('#withImages').is(':checked') ? 1 : 0;
+                let withOverride = $('#override').is(':checked') ? 1 : 0;
+                let onlyImages = $('#onlyImages').is(':checked') ? 1 : 0;
 
                 if (!selectedYear) {
                     alert('Please select a year first.');
@@ -771,7 +769,7 @@
                     model_id: modelId || null, // Optional: If model is selected
                     style_ids: styleIds || [], // Optional: If styles are selected
                     vehicles_limit: limit, // Vehicles limit (optional)
-                    with_images: withImages, 
+                    with_images: withImages,
                     override: withOverride,
                     only_images: onlyImages
                 };

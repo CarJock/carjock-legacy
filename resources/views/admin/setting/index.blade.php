@@ -101,7 +101,7 @@
                                 <div class="mb-3">
                                     <label class="form-label">Models</label>
 
-                                    <select id="model" name="model"
+                                    <select size="10" id="model" name="model[]" multiple
                                         class="form-control @error('model') is-invalid @enderror">
                                         <option value="">No models available</option>
                                     </select>
@@ -119,7 +119,7 @@
                                 <!-- Style Selection -->
                                 <div class="mb-3">
                                     <label class="form-label">Styles / Variants</label>
-                                    <select id="style" name="style[]" multiple
+                                    <select size="10" id="style" name="style[]" multiple
                                         class="form-control @error('style') is-invalid @enderror">
                                         <option value="">No Styles available</option>
                                     </select>
@@ -147,9 +147,8 @@
 
                                     <!-- Vehicles Limit Input -->
                                     <div class="col-md-12">
-                                        <input type="number" name="limit" id="limit"
-                                            class="form-control" min="1"
-                                            placeholder="Enter vehicles limit">
+                                        <input type="number" name="limit" id="limit" class="form-control"
+                                            min="1" placeholder="Enter vehicles limit">
                                     </div>
 
                                     <!-- Free Pull Checkbox with Value Retention -->
@@ -176,7 +175,8 @@
                                     </div>
                                     <!-- Fetch Vehicles Button -->
                                     <div class="col-md-12">
-                                        <button class="btn btn-sm btn-primary mt-2" id="vehicle-update" type="button" style="width: auto; width:100%">
+                                        <button class="btn btn-sm btn-primary mt-2" id="vehicle-update" type="button"
+                                            style="width: auto; width:100%">
                                             Fetch Vehicles
                                         </button>
                                     </div>
