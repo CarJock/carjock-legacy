@@ -10,6 +10,9 @@
 $(document).ready(function () {
     // Retrieve comparisons from local storage
     var comparisons = JSON.parse(localStorage.getItem('comparisions')) || {};
+    console.log(comparisons);
+    var totalComparisons = Object.keys(comparisons).length;
+    $('.main-total-comparisions').text(totalComparisons + (totalComparisons === 1 ? ' Car Added' : ' Cars Added'));
 
     // Iterate over all elements with class .btnCompare2
     $('.btnCompare2').each(function () {
@@ -1329,7 +1332,7 @@ $(window).on('load', function () {
                                 results: data.items.map(function (car) {  // Map the data into select2 format
                                     return {
                                         id: car.id,
-                                        text: car.name, 
+                                        text: car.name,
                                         data: car
                                     };
                                 }),
@@ -1480,7 +1483,11 @@ $(window).on('load', function () {
 
 
     $('.select-vehicle').on('click', function () {
+        
         const $children = $(".dragableslidingcars").children();
+        if ($children.filter(":hidden").length === 0) {
+            alert("Max cars have been reached. Remove a car or start a new comparison to continue.");
+        }
         let carShown = false;
 
         // Loop through each child and find the first hidden one to show
@@ -1491,29 +1498,27 @@ $(window).on('load', function () {
                 return false;  // Exit the loop after showing one car
             }
         });
-
+        console.log($children.filter(":hidden").length, carShown)
         // If all visible and max cars have been reached, trigger the next slide
-        if (!carShown && $children.filter(":hidden").length === 0) {
+        if (carShown && $children.filter(":hidden").length === 2) {
             $('.next.next1').trigger('click');
-
             // Check for any remaining hidden cars after sliding
-            $children.each(function (index) {
-                if ($(this).is(":hidden")) {
-                    $(this).fadeIn(1000);  // Smoothly show the next hidden car
-                    return false;  // Exit the loop after showing one car
-                }
-            });
+            // $children.each(function (index) {
+            //     if ($(this).is(":hidden")) {
+            //         $(this).fadeIn(1000);  // Smoothly show the next hidden car
+            //         return false;  // Exit the loop after showing one car
+            //     }
+            // });
         }
 
         // If no cars are hidden at all, show the alert
-        if ($children.filter(":hidden").length === 0) {
-            alert("Max cars have been reached. Remove a car or start a new comparison to continue.");
-        }
+        
     });
 
 
 
     $('.vehicledelete').on('click', function () {
+        
         var currentState = $(this).parent().parent()
         $(".dragableslidingcars").append(currentState.parent().parent().hide());
         currentState.find('.title').text('-');
@@ -1539,6 +1544,11 @@ $(window).on('load', function () {
             }
         });
 
+        const $children = $(".dragableslidingcars").children();
+        if ($children.filter(":hidden").length === 3) {
+            $('.prev.prev1').trigger('click');
+        }
+
         if (getQueryParam('comparisions')) {
             DeleteComparisionsDataFromLocalStorage(rankTag);
         } else {
@@ -1553,8 +1563,7 @@ $(window).on('load', function () {
             elem.innerHTML = getNumberWithOrdinal(indexnum + 1);
         })
 
-        $('.next.next1').trigger('click');
-        $('.prev.prev1').trigger('click');
+        
     })
 
     $('.horsepowermeter').each(function () {
@@ -1568,7 +1577,6 @@ $(window).on('load', function () {
     function updateSlider() {
         let isMobile = window.innerWidth <= 768; // Define mobile screen width threshold
         let cardsToShow = isMobile ? 1 : 3;
-
         // Reset all cards to be visible and then hide the necessary ones
         $('.dragableslidingcars .carcard').removeClass('hide');
         $('.dragableslidingcars .carcard').slice(cardsToShow).addClass('hide');
@@ -1681,7 +1689,6 @@ function SaveDataToLocalStorage(vehicle, rankTag) {
 
         // Save the updated object back to localStorage
         localStorage.setItem('comparisions', JSON.stringify(comparisions));
-
         // Update the UI with the total number of comparisons
         var totalComparisons = Object.keys(comparisions).length;
         $('.main-total-comparisions').text(totalComparisons + (totalComparisons === 1 ? ' Car Added' : ' Cars Added'));
@@ -1756,7 +1763,6 @@ function SaveComparisionsDataToLocalStorage(vehicle, key) {
 
 
 function DeleteDataFromLocalStorage(key) {
-
     var comparisions = JSON.parse(localStorage.getItem('comparisions')) || {};
 
     if (Object.keys(comparisions).length <= 6) {
@@ -2022,10 +2028,10 @@ function vehicleDetail(vehicle, index, currentState, name, ID, data) {
     }
 
     //net torque
-    if (vehicle.engine.length > 0) {
+    if (vehicle?.engine?.length > 0) {
         $('.stickycol.specifications-torque').next().children().eq(index).html('<div class="horsepowermeter" data-metervalue="0"><div class="overlaymeter"></div><div class="valueholder">' + vehicle.engine[0].netTorque?.value + '</div></div>');;
         $('.stickycol.specifications-torque').next().children().eq(index).find('.horsepowermeter').children().css('width', 100 + '%');
-    } else if (vehicle.engine.netTorque.value) {
+    } else if (vehicle?.engine?.netTorque?.value) {
         $('.stickycol.specifications-torque').next().children().eq(index).html('<div class="horsepowermeter" data-metervalue="0"><div class="overlaymeter"></div><div class="valueholder">' + vehicle.engine?.netTorque?.value + '</div></div>');;
         $('.stickycol.specifications-torque').next().children().eq(index).find('.horsepowermeter').children().css('width', 100 + '%');
     } else {
@@ -2033,10 +2039,10 @@ function vehicleDetail(vehicle, index, currentState, name, ID, data) {
     }
 
     //net torque
-    if (vehicle.engine.length > 0) {
+    if (vehicle?.engine?.length > 0) {
         $('.stickycol.specifications-torque-rpm').next().children().eq(index).html('<div class="horsepowermeter" data-metervalue="0"><div class="overlaymeter"></div><div class="valueholder">' + vehicle.engine[0].netTorque?.rpm + '</div></div>');;
         $('.stickycol.specifications-torque-rpm').next().children().eq(index).find('.horsepowermeter').children().css('width', 100 + '%');
-    } else if (vehicle.engine.netTorque.rpm) {
+    } else if (vehicle?.engine?.netTorque?.rpm) {
         $('.stickycol.specifications-torque-rpm').next().children().eq(index).html('<div class="horsepowermeter" data-metervalue="0"><div class="overlaymeter"></div><div class="valueholder">' + vehicle.engine?.netTorque?.rpm + '</div></div>');;
         $('.stickycol.specifications-torque-rpm').next().children().eq(index).find('.horsepowermeter').children().css('width', 100 + '%');
     } else {
@@ -2046,7 +2052,7 @@ function vehicleDetail(vehicle, index, currentState, name, ID, data) {
     $('.stickycol.dimension-invoice').next().children().eq(index).text(priceWithCommas(vehicle?.basePrice?.invoice?.low) + ' / ' + priceWithCommas(vehicle?.basePrice?.msrp?.high));
 
     //Loop to get Generaic Equipment Definations
-    if (vehicle.genericEquipment) {
+    if (vehicle?.genericEquipment) {
         for (let i = 0; i < vehicle.genericEquipment.length; i++) {
             if (Object.hasOwn(vehicle.genericEquipment[i], 'definition')) {
                 if (Object.hasOwn(vehicle.genericEquipment[i].definition, 'category')) {
