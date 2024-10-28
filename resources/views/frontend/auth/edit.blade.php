@@ -47,8 +47,9 @@
                 <div class="col-md-6">
                     <label class="form-label" for="registerUsername">Profile Picture*</label>
                     <div class="form-control position-relative">
-                        <input class="mb_setting_format" style="position: absolute; top: 4px; left: 36px; width: 369px ; border: none !important" type="file"
-                            name="image" id="imageInput" />
+                        <input class="mb_setting_format"
+                            style="position: absolute; top: 4px; left: 36px; width: 369px ; border: none !important"
+                            type="file" name="image" id="imageInput" />
                         <label for="imageInput" class="custom-file-upload">Upload a picture</label>
                     </div>
                     @error('image')
@@ -102,6 +103,40 @@
                         </span>
                     @enderror
                 </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" for="country">Country*</label>
+                    <select name="country" id="country" class="form-control">
+                        <option value="">Select your country</option>
+                        <option value="usa" {{ (old('country') ?? $user->country) == 'usa' ? 'selected' : '' }}>
+                            United States</option>
+                        <option value="canada" {{ (old('country') ?? $user->country) == 'canada' ? 'selected' : '' }}>
+                            Canada</option>
+                        <option value="japan" {{ (old('country') ?? $user->country) == 'japan' ? 'selected' : '' }}>
+                            Japan</option>
+                        <!-- Add more country options as needed -->
+                    </select>
+                    @error('country')
+                        <span class="invalid-feedback" style="display:block" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" for="city">City*</label>
+                    <input type="text" name="city" id="city" class="form-control"
+                        value="{{ old('city') ?? $user->city }}" placeholder="Enter your city" />
+                    @error('city')
+                        <span class="invalid-feedback" style="display:block" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+
+
+
+
 
                 <div class="col-md-6">
                     <label class="form-label" for="registerEmail">Subscribe for Newsletter*</label>

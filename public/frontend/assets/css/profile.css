@@ -51,7 +51,7 @@ section.profile {
 
 .form-control {
     background: #e8f0fe !important;
-    padding: 20px !important;
+    /* padding: 20px !important; */
     border-radius: 7px !important;
 } 
 
