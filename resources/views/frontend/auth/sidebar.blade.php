@@ -3,28 +3,28 @@
         <div class="communityF-sec profile-link">
             <a class="{{ request()->is('account/profile') ? 'active' : '' }}" href="{{route('frontend.account.profile')}}">
                 <span>User Details</span>
-                <img src="https://consortsolutions.com/demo/car-jock/assets/images/filteroptionsarrow.png">
+                <img src="{{asset('frontend/assets/images/filteroptionsarrow.png')}}">
             </a>
         </div>
        <hr>
        <div class="communityF-sec profile-link">
             <a class="{{ request()->is('account/profile/garage') ? 'active' : '' }}" href="{{route('frontend.account.profile.garage')}}">
              <span>   My Garage </span>
-                <img src="https://consortsolutions.com/demo/car-jock/assets/images/filteroptionsarrow.png">
+                <img src="{{asset('frontend/assets/images/filteroptionsarrow.png')}}">
             </a>
         </div>
        <hr>
        <div class="communityF-sec profile-link">
             <a class="{{ request()->is('account/profile/favourites') ? 'active' : '' }}" href="{{route('frontend.account.profile.favourites')}}">
              <span>   Favorites</span>
-                <img src="https://consortsolutions.com/demo/car-jock/assets/images/filteroptionsarrow.png">
+                <img src="{{asset('frontend/assets/images/filteroptionsarrow.png')}}">
             </a>
         </div>
        <hr>
         <div class="communityF-sec profile-link">
             <a class="{{ request()->is('account/profile/comparisions') ? 'active' : '' }}" href="{{route('frontend.account.profile.comparisions')}}">
               <span>  Saved Comparisons </span>
-                <img src="https://consortsolutions.com/demo/car-jock/assets/images/filteroptionsarrow.png">
+                <img src="{{asset('frontend/assets/images/filteroptionsarrow.png')}}">
             </a>
         </div>
        <hr>
@@ -39,14 +39,14 @@
             <a class="{{ request()->is('account/profile/change-password') ? 'active' : '' }}" href="{{route('frontend.account.profile.change-password')}}">
                <span> Change Password </span>
 
-                <img src="https://consortsolutions.com/demo/car-jock/assets/images/filteroptionsarrow.png">
+                <img src="{{asset('frontend/assets/images/filteroptionsarrow.png')}}">
             </a>
         </div>
        <hr>
        <div class="communityF-sec profile-link">
             <a onclick="event.preventDefault(); document.getElementById('logout-form').submit();" href="{{ route('logout') }}">
                <span> Log out </span>
-                <img src="https://consortsolutions.com/demo/car-jock/assets/images/filteroptionsarrow.png">
+                <img src="{{asset('frontend/assets/images/filteroptionsarrow.png')}}">
             </a>
         </div>
         <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
