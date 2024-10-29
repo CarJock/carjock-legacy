@@ -54,33 +54,36 @@ class ChromeDataController extends Controller
         $year = $request->input('year');
         $modelIds = $request->input('model_id'); // model_id is now an array
         $divisionId = $request->input('division_id');
+        $onlyUndumped = $request->input('only_undumped'); // Get the checkbox value
+        $onlyUndumped = $onlyUndumped == "true";
 
-        // Fetch division IDs for the selected year if all divisions are selected
+        // Fetch division IDs if all divisions are selected
         if ($divisionId == 'all') {
             $divisionIds = Division::where('year', $year)->pluck('id')->toArray();
         }
 
-        // If model IDs are not specified, are empty, or set to 'all'
-        if ((is_array($modelIds) && in_array('all', $modelIds) || $modelIds == 'all')) {
+        if ((is_array($modelIds) && in_array('all', $modelIds)) || $modelIds == 'all') {
             if ($divisionId && $divisionId != 'all') {
-                // Fetch model IDs for the specified division
                 $modelIds = Model::where('division_id', $divisionId)->pluck('id')->toArray();
             } else {
-                // Fetch model IDs for all divisions in the specified year
                 $modelIds = Model::whereIn('division_id', $divisionIds)->pluck('id')->toArray();
             }
         } else {
-            // model_id has specific IDs, so we use them directly
             $modelIds = is_array($modelIds) ? $modelIds : [$modelIds];
         }
 
-        // Fetch styles for the selected model IDs
-        $styles = Style::whereIn('model_id', $modelIds)
-            ->orderBy('number', 'asc')
-            ->get();
+        // Fetch styles and apply the undumped filter if needed
+        $query = Style::whereIn('model_id', $modelIds)->orderBy('number', 'asc');
+
+        if ($onlyUndumped) {
+            $query->where('dump', 0); // Adjust this based on the dumped flag column
+        }
+
+        $styles = $query->get();
 
         return response()->json(['styles' => $styles]);
     }
+
 
     public function getVehiclesByStyles(Request $request)
     {

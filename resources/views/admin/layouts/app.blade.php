@@ -306,7 +306,8 @@
                                 $('#update-vehicle').show();
 
                                 // Reset models and styles if divisions are available
-                                modelDropdown.append('<option selected value="all">All Models</option>');
+                                modelDropdown.append(
+                                    '<option selected value="all">All Models</option>');
                                 styleDropdown.append(
                                     '<option selected value="all">All Styles</option>');
 
@@ -327,7 +328,8 @@
                                                     '<option value="' +
                                                     model.id + '">' +
                                                     model.name + ' ( ' +
-                                                    model.number + ')' + '</option>');
+                                                    model.number + ')' +
+                                                    '</option>');
                                             });
 
                                             // Update the model count
@@ -343,53 +345,7 @@
                                         }
 
                                         // Fetch styles based on the selected year with division_id = 'all'
-                                        $.ajax({
-                                            url: baseURL +
-                                                '/admin/api/styles', // API route to fetch styles
-                                            method: 'GET',
-                                            data: {
-                                                year: selectedYear,
-                                                model_id: 'all',
-                                                division_id: 'all'
-                                            },
-                                            success: function(
-                                                styleResponse) {
-                                                if (styleResponse.styles
-                                                    .length > 0) {
-                                                    $.each(styleResponse
-                                                        .styles,
-                                                        function(
-                                                            key,
-                                                            style) {
-                                                            styleDropdown
-                                                                .append(
-                                                                    '<option value="' + style.id + '">' + style.name + ' ( ' + style.number + ')' + '</option>'
-                                                                );
-                                                        });
-                                                    // Update the style count
-                                                    styleCountLabel
-                                                        .text(
-                                                            'Styles available: ' +
-                                                            styleResponse
-                                                            .styles
-                                                            .length);
-                                                } else {
-                                                    styleDropdown
-                                                        .append(
-                                                            '<option value="">No Styles Available</option>'
-                                                        );
-                                                    styleCountLabel
-                                                        .text(
-                                                            'No styles available.'
-                                                        );
-                                                }
-                                            },
-                                            error: function() {
-                                                alert(
-                                                    'Error fetching styles. Please try again.'
-                                                );
-                                            }
-                                        });
+                                        fetchStyles();
                                     },
                                     error: function() {
                                         alert(
@@ -471,13 +427,17 @@
                 });
             });
 
-            // Handle model change to update styles
-            $('#model').change(function() {
-                let modelId = $(this).val();
+            // Function to fetch styles
+            function fetchStyles() {
+                let modelId = $('#model').val();
                 let selectedYear = $('#year option:selected').val();
-                let selectedModelName = $('#model option:selected').text(); // Get the selected model's name
-                let selectedDivisionId = $('#division option:selected')
-                    .val(); // Get the selected model's name
+                let selectedDivisionId = $('#division option:selected').val();
+                let onlyUndumped = $('#only-undumped').is(':checked'); // Get checkbox status
+
+                if (!modelId || modelId.length === 0) {
+                    alert('Please select a model before fetching styles.');
+                    return; // Exit the function if no model is selected
+                }
 
                 $.ajax({
                     url: baseURL + '/admin/api/styles', // API route to fetch styles
@@ -485,7 +445,8 @@
                     data: {
                         model_id: modelId,
                         year: selectedYear,
-                        division_id: selectedDivisionId
+                        division_id: selectedDivisionId,
+                        only_undumped: onlyUndumped // Include checkbox status in the data
                     },
                     success: function(response) {
                         let styleSelect = $('#style');
@@ -493,30 +454,58 @@
 
                         if (response.styles.length > 0) {
                             $.each(response.styles, function(key, style) {
-                                styleSelect.append('<option value="' + style.id + '">' +
-                                    style.name + ' (' + style.number + ')' +
-                                    '</option>');
+                                let displayName = style.name + ' (' + style.number + ')';
+                                if (style.dump === 1) {
+                                    displayName += ' - Dumped';
+                                }
+                                styleSelect.append('<option value="' + style.id +
+                                    '" data-dump="' + style.dump + '">' +
+                                    displayName + '</option>');
                             });
-                            // Alert the user or display the count message
-                            $('#style-count').text('Styles available: ' + response.styles
-                                .length);
+                            $('#style-count').text('Styles available: ' + response.styles.length);
                         } else {
-                            styleSelect.append(
-                                '<option value="">No Styles Available</option>');
+                            styleSelect.append('<option value="">No Styles Available</option>');
                             $('#style-count').text('No styles available.');
                             $('#update-styles').show();
                         }
                     }
                 });
+            }
+
+            // Trigger style fetching when the model is changed
+            $('#model').change(function() {
+                fetchStyles();
             });
 
+            // Trigger style fetching when the "only undumped" checkbox is changed
+            $('#only-undumped').change(function() {
+                fetchStyles();
+            });
+
+
+
+            // Function to handle the style dropdown change
             $('#style').change(function() {
                 let styleIds = $(this).val(); // Get the selected style IDs (multi-select)
-                let selectedYear = $('#year option:selected')
-                    .val(); // Get the selected style IDs (multi-select)
-                let selectedModelId = $('#model option:selected').val(); // Get the selected model's name
-                let selectedDivisionId = $('#model option:selected').val(); // Get the selected model's name
-                let selectedModelName = $('#model option:selected').text(); // Get the selected model's name
+                let selectedYear = $('#year option:selected').val();
+                let selectedModelId = $('#model option:selected').val();
+                let selectedDivisionId = $('#division option:selected').val();
+                let selectedModelName = $('#model option:selected').text();
+
+                // Check if any of the selected styles are dumped (data-dump="1")
+                let hasDumpedStyle = false;
+
+                // Iterate over selected styles to check for dumped status
+                styleIds.forEach(function(styleId) {
+                    if ($('#style option[value="' + styleId + '"]').data('dump') === 1) {
+                        hasDumpedStyle = true;
+                    }
+                });
+
+                if (!hasDumpedStyle) {
+                    return; // Exit if no dumped styles are selected
+                }
+
                 if (styleIds && styleIds.length > 0) {
                     $('.preloader').css('display', 'block');
                     $.ajax({
@@ -534,17 +523,14 @@
                                 '#vehicle'); // Assuming there's a vehicle dropdown
                             vehicleSelect.empty(); // Clear existing options
 
-                            // Check if the response contains a vehicle count when "all" is selected
                             if (response.vehicles && response.vehicles.length > 0) {
                                 $.each(response.vehicles, function(key, vehicle) {
                                     vehicleSelect.append('<option value="' + vehicle
                                         .id + '">' + vehicle.name + '</option>');
                                 });
-                                // Display the count of available vehicles
                                 $('#vehicle-count').text('Vehicles available: ' + response
                                     .vehicles.length);
                             } else if (response.vehicles && response.vehicles.id) {
-                                // If response contains the count when "all" is selected
                                 vehicleSelect.append('<option value="all">' + response.vehicles
                                     .name + '</option>');
                                 $('#vehicle-count').text(response.vehicles.name);
@@ -562,16 +548,11 @@
                         }
                     });
                 } else {
-                    // If no styles are selected, clear vehicle dropdown and count
                     $('#vehicle').empty();
                     $('#vehicle-count').text('');
                     alert('Please select at least one style.');
                 }
             });
-
-
-
-
 
             $('#update-models').click(function() {
                 let divisionId = $('#division').val();

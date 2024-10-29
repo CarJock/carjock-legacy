@@ -117,8 +117,14 @@
 
 
                                 <!-- Style Selection -->
-                                <div class="mb-3">
-                                    <label class="form-label">Styles / Variants</label>
+                                <div class="mt-5">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <label class="form-label">Styles / Variants</label>
+                                        <label class="form-check-label">
+                                            <input type="checkbox" id="only-undumped" class="form-check-input" />
+                                            Show only undumped styles
+                                        </label>
+                                    </div>
                                     <select size="10" id="style" name="style[]" multiple
                                         class="form-control @error('style') is-invalid @enderror">
                                         <option value="">No Styles available</option>
