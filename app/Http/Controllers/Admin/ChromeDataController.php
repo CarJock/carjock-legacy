@@ -32,9 +32,10 @@ class ChromeDataController extends Controller
                 ->select('models.id', 'models.division_id', 'models.number', 'models.name', 'divisions.name as division_name')
                 ->orderBy('division_name', 'asc')
                 ->orderBy('models.number', 'asc')
+                ->where('models.deleted', 0)
                 ->get();
         } else {
-            $models = Model::where('division_id', $divisionId)
+            $models = Model::where('division_id', $divisionId)->whereDeleted(0)
                 ->join('divisions', 'models.division_id', '=', 'divisions.id') // Use divisions.id
                 ->select('models.id', 'models.division_id', 'models.number', 'models.name', 'divisions.name as division_name')
                 ->orderBy('division_name', 'asc')
@@ -64,9 +65,9 @@ class ChromeDataController extends Controller
 
         if ((is_array($modelIds) && in_array('all', $modelIds)) || $modelIds == 'all') {
             if ($divisionId && $divisionId != 'all') {
-                $modelIds = Model::where('division_id', $divisionId)->pluck('id')->toArray();
+                $modelIds = Model::where('division_id', $divisionId)->whereDeleted(0)->pluck('id')->toArray();
             } else {
-                $modelIds = Model::whereIn('division_id', $divisionIds)->pluck('id')->toArray();
+                $modelIds = Model::whereIn('division_id', $divisionIds)->whereDeleted(0)->pluck('id')->toArray();
             }
         } else {
             $modelIds = is_array($modelIds) ? $modelIds : [$modelIds];
@@ -105,7 +106,7 @@ class ChromeDataController extends Controller
                     $divisionIds = [$divisionId];
                 }
                 // Get all model IDs from those divisions
-                $modelIds = Model::whereIn('division_id', $divisionIds)->pluck('id')->toArray();
+                $modelIds = Model::whereIn('division_id', $divisionIds)->whereDeleted(0)->pluck('id')->toArray();
             } else {
                 // If a specific model is selected, use it
                 $modelIds = $modelId;
@@ -174,7 +175,7 @@ class ChromeDataController extends Controller
                     foreach ($chromeModels->model as $chromeModel) {
                         if (isset($chromeModel->id) && isset($chromemModel->_)) {
                             $existingModel = Model::updateOrCreate(
-                                ['division_id' => $division->id, 'number' => $chromeModel->id],
+                                ['division_id' => $division->id, 'number' => $chromeModel->id, 'deleted' => 0],
                                 ['name' => $chromeModel->_]
                             );
                             $updatedModels[] = $existingModel;
@@ -195,9 +196,10 @@ class ChromeDataController extends Controller
 
             if (isset($chromemModels->responseStatus->responseCode) && $chromemModels->responseStatus->responseCode == 'Successful') {
                 foreach ($chromemModels->model as $chromeModel) {
-                    if (isset($chromeModel->id) && isset($chromemModel->_)) {
+                    if (isset($chromeModel->id) && isset($chromeModel->_)) {
+                        
                         $existingModel = Model::updateOrCreate(
-                            ['division_id' => $division->id, 'number' => $chromeModel->id],
+                            ['division_id' => $division->id, 'number' => $chromeModel->id, 'deleted' => 0],
                             ['name' => $chromeModel->_]
                         );
                         $updatedModels[] = $existingModel;
@@ -286,13 +288,13 @@ class ChromeDataController extends Controller
                 $divisionIds = [$divisionId];
             }
             // Get all model IDs from those divisions
-            $modelIds = Model::whereIn('division_id', $divisionIds)->pluck('id')->toArray();
+            $modelIds = Model::whereIn('division_id', $divisionIds)->whereDeleted(0)->pluck('id')->toArray();
         } else {
             // If a specific model is selected, use it
             $modelIds = $modelId;
         }
 
-        $models = Model::whereIn('id', $modelIds)->get();
+        $models = Model::whereIn('id', $modelIds)->whereDeleted(0)->get();
 
         foreach ($models as $model) {
             // Fetch styles for each model
@@ -351,7 +353,7 @@ class ChromeDataController extends Controller
                     $divisionIds = [$divisionId];
                 }
                 // Get all model IDs from those divisions
-                $modelIds = Model::whereIn('division_id', $divisionIds)->pluck('id')->toArray();
+                $modelIds = Model::whereIn('division_id', $divisionIds)->whereDeleted(0)->pluck('id')->toArray();
             } else {
                 
                 $modelIds = $modelId;
