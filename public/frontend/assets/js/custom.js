@@ -1403,32 +1403,32 @@ $(window).on('load', function () {
 
 
                     if (rankTag == '1st') {
-                        currentState.find('.favourite-vehicle i').css('color', carFullData.user.length > 0 ? 'red' : '');
+                        currentState.find('.favourite-vehicle i').css('color', carFullData?.user?.length > 0 ? 'red' : '');
                         vehicleDetail(JSON.parse(carFullData.data), 0, currentState, name, ID, carFullData);
                     }
 
                     if (rankTag == '2nd') {
-                        currentState.find('.favourite-vehicle i').css('color', carFullData.user.length > 0 ? 'red' : '');
+                        currentState.find('.favourite-vehicle i').css('color', carFullData?.user?.length > 0 ? 'red' : '');
                         vehicleDetail(JSON.parse(carFullData.data), 1, currentState, name, ID, carFullData);
                     }
 
                     if (rankTag == '3rd') {
-                        currentState.find('.favourite-vehicle i').css('color', carFullData.user.length > 0 ? 'red' : '');
+                        currentState.find('.favourite-vehicle i').css('color', carFullData?.user?.length > 0 ? 'red' : '');
                         vehicleDetail(JSON.parse(carFullData.data), 2, currentState, name, ID, carFullData);
                     }
 
                     if (rankTag == '4th') {
-                        currentState.find('.favourite-vehicle i').css('color', carFullData.user.length > 0 ? 'red' : '');
+                        currentState.find('.favourite-vehicle i').css('color', carFullData?.user?.length > 0 ? 'red' : '');
                         vehicleDetail(JSON.parse(carFullData.data), 3, currentState, name, ID, carFullData);
                     }
 
                     if (rankTag == '5th') {
-                        currentState.find('.favourite-vehicle i').css('color', carFullData.user.length > 0 ? 'red' : '');
+                        currentState.find('.favourite-vehicle i').css('color', carFullData?.user?.length > 0 ? 'red' : '');
                         vehicleDetail(JSON.parse(carFullData.data), 4, currentState, name, ID, carFullData);
                     }
 
                     if (rankTag == '6th') {
-                        currentState.find('.favourite-vehicle i').css('color', carFullData.user.length > 0 ? 'red' : '');
+                        currentState.find('.favourite-vehicle i').css('color', carFullData?.user?.length > 0 ? 'red' : '');
                         vehicleDetail(JSON.parse(carFullData.data), 5, currentState, name, ID, carFullData);
                     }
 
