@@ -1435,27 +1435,6 @@ function myFunction() {
     console.log(a);
 }*/
 
-function SaveDataToLocalStorage(vehicle, rankTag) {
-    // Retrieve the existing comparisons from localStorage, or initialize an empty object
-    var comparisions = JSON.parse(localStorage.getItem('comparisions')) || {};
-
-    // Check if there are fewer than 6 cars stored already
-    if (Object.keys(comparisions).length < 6) {
-        // Store the vehicle object with the rank as the key (e.g., "1st", "2nd")
-        comparisions[rankTag] = vehicle;
-
-        // Save the updated object back to localStorage
-        localStorage.setItem('comparisions', JSON.stringify(comparisions));
-        // Update the UI with the total number of comparisons
-        var totalComparisons = Object.keys(comparisions).length;
-        $('.main-total-comparisions').text(totalComparisons + (totalComparisons === 1 ? ' Car Added' : ' Cars Added'));
-        $('.total-comparisions').text(totalComparisons);
-    } else {
-        console.log('You can only add up to 6 cars.');
-    }
-
-}
-
 
 
 function SaveDataToLocalStorageWithoutKey(vehicle) {
@@ -1673,7 +1652,7 @@ $(document).ready(function () {
         $(".dragableslidingcars").append(currentState.parent().parent().hide());
         currentState.find('.title').text('-');
         currentState.prev().find('.vehicle-image').attr('src', siteurl + 'frontend/assets/images/comparision-placeholder.jpeg')
-        currentState.parent().parent().find(".carselectoroption").val(0).trigger('change');
+        // currentState.parent().parent().find(".carselectoroption").val(0).trigger('change');
         $('#savecomparisions').removeAttr('disabled').removeAttr('style').text('Save');
         var rankTag = currentState.find('.ranktag').text();
         $.each($('.stickycol'), function () {
@@ -1854,6 +1833,27 @@ $(document).ready(function () {
             console.error('Failed to fetch garage vehicles.');
         }
     });
+
+    function SaveDataToLocalStorage(vehicle, rankTag) {
+        // Retrieve the existing comparisons from localStorage, or initialize an empty object
+        var comparisions = JSON.parse(localStorage.getItem('comparisions')) || {};
+    
+        if (Object.keys(comparisions).length < 6) {
+            // Store the vehicle object with the rank as the key (e.g., "1st", "2nd")
+            comparisions[rankTag] = vehicle;
+    
+            // Save the updated object back to localStorage
+            localStorage.setItem('comparisions', JSON.stringify(comparisions));
+            // Update the UI with the total number of comparisons
+            var totalComparisons = Object.keys(comparisions).length;
+            $('.main-total-comparisions').text(totalComparisons + (totalComparisons === 1 ? ' Car Added' : ' Cars Added'));
+            $('.total-comparisions').text(totalComparisons);
+        } else {
+            console.log('You can only add up to 6 cars.');
+        }
+    
+    }
+
     // Retrieve the comparison data from URL or localStorage
     const storedComparisons = localStorage.getItem('comparisions') ? JSON.parse(localStorage.getItem('comparisions')) : {};
 
