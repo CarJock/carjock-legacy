@@ -1323,56 +1323,6 @@ $(window).on('load', function () {
     });
 
 
-
-    $('.vehicledelete').on('click', function () {
-
-        var currentState = $(this).parent().parent()
-        $(".dragableslidingcars").append(currentState.parent().parent().hide());
-        currentState.find('.title').text('-');
-        currentState.prev().find('.vehicle-image').attr('src', siteurl + 'frontend/assets/images/comparision-placeholder.jpeg')
-        currentState.parent().parent().find(".carselectoroption").val(0).trigger('change');
-        $('#savecomparisions').removeAttr('disabled').removeAttr('style').text('Save');
-        var rankTag = currentState.find('.ranktag').text();
-        $.each($('.stickycol'), function () {
-            if (rankTag == '1st') {
-                $(this).next().children().eq(0).text('');
-                $(this).next().append($(this).next().children().eq(0).remove());
-            } else if (rankTag == '2nd') {
-                $(this).next().children().eq(1).text('');
-                $(this).next().append($(this).next().children().eq(1).remove());
-            } else if (rankTag == '3rd') {
-                $(this).next().children().eq(2).hide();
-            } else if (rankTag == '4th') {
-                $(this).next().children().eq(3).hide();
-            } else if (rankTag == '5th') {
-                $(this).next().children().eq(4).hide();
-            } else if (rankTag == '6th') {
-                $(this).next().children().eq(5).hide();
-            }
-        });
-
-        const $children = $(".dragableslidingcars").children();
-        if ($children.filter(":hidden").length === 3) {
-            $('.prev.prev1').trigger('click');
-        }
-
-        if (getQueryParam('comparisions')) {
-            DeleteComparisionsDataFromLocalStorage(rankTag);
-        } else {
-            DeleteDataFromLocalStorage(rankTag);
-        }
-
-
-        //Update the ranking
-        var draggablelist = document.querySelector('.dragableslidingcars');
-        var draggablelistranktag = draggablelist.querySelectorAll('.ranktag');
-        draggablelistranktag.forEach(function (elem, indexnum) {
-            elem.innerHTML = getNumberWithOrdinal(indexnum + 1);
-        })
-
-
-    })
-
     $('.horsepowermeter').each(function () {
         var mainthis = $(this);
         var meterPercentValue = mainthis.attr('data-metervalue');
@@ -1569,25 +1519,6 @@ function SaveComparisionsDataToLocalStorage(vehicle, key) {
 }
 
 
-function DeleteDataFromLocalStorage(key) {
-    var comparisions = JSON.parse(localStorage.getItem('comparisions')) || {};
-
-    if (Object.keys(comparisions).length <= 6) {
-        if (comparisions.hasOwnProperty(key)) {
-            delete comparisions[key];
-            localStorage.setItem('comparisions', JSON.stringify(comparisions));
-            var totalComparisons = Object.keys(comparisions).length;
-            $('.main-total-comparisions').text(totalComparisons + (totalComparisons === 1 ? ' Car Added' : ' Cars Added'));
-            $('.total-comparisions').text(totalComparisons);
-        } else {
-            console.log('Key does not exist. Unable to delete.');
-        }
-    } else {
-        console.log('Invalid index. Please provide an index between 1 and 6.');
-    }
-    UpdateKeysInLocalStorage()
-}
-
 function DeleteComparisionsDataFromLocalStorage(key) {
     var comparisions = JSON.parse(localStorage.getItem('query_comparisions')) || {};
 
@@ -1735,6 +1666,81 @@ function priceWithCommas(value) {
 
 
 $(document).ready(function () {
+    console.log($('.main-total-comparisons').length);
+    $('.vehicledelete').on('click', function () {
+
+        var currentState = $(this).parent().parent()
+        $(".dragableslidingcars").append(currentState.parent().parent().hide());
+        currentState.find('.title').text('-');
+        currentState.prev().find('.vehicle-image').attr('src', siteurl + 'frontend/assets/images/comparision-placeholder.jpeg')
+        currentState.parent().parent().find(".carselectoroption").val(0).trigger('change');
+        $('#savecomparisions').removeAttr('disabled').removeAttr('style').text('Save');
+        var rankTag = currentState.find('.ranktag').text();
+        $.each($('.stickycol'), function () {
+            if (rankTag == '1st') {
+                $(this).next().children().eq(0).text('');
+                $(this).next().append($(this).next().children().eq(0).remove());
+            } else if (rankTag == '2nd') {
+                $(this).next().children().eq(1).text('');
+                $(this).next().append($(this).next().children().eq(1).remove());
+            } else if (rankTag == '3rd') {
+                $(this).next().children().eq(2).hide();
+            } else if (rankTag == '4th') {
+                $(this).next().children().eq(3).hide();
+            } else if (rankTag == '5th') {
+                $(this).next().children().eq(4).hide();
+            } else if (rankTag == '6th') {
+                $(this).next().children().eq(5).hide();
+            }
+        });
+
+        const $children = $(".dragableslidingcars").children();
+        if ($children.filter(":hidden").length === 3) {
+            $('.prev.prev1').trigger('click');
+        }
+
+        DeleteDataFromLocalStorage(rankTag);
+
+
+        //Update the ranking
+        var draggablelist = document.querySelector('.dragableslidingcars');
+        var draggablelistranktag = draggablelist.querySelectorAll('.ranktag');
+        draggablelistranktag.forEach(function (elem, indexnum) {
+            elem.innerHTML = getNumberWithOrdinal(indexnum + 1);
+        })
+
+
+    })
+
+    function DeleteDataFromLocalStorage(key) {
+        var comparisions = JSON.parse(localStorage.getItem('comparisions')) || {};
+    
+        if (Object.keys(comparisions).length <= 6) {
+            if (comparisions.hasOwnProperty(key)) {
+                delete comparisions[key];
+                localStorage.setItem('comparisions', JSON.stringify(comparisions));
+    
+                // Re-index the keys
+                const newComparisons = {};
+                let index = 1;
+                for (const [rank, value] of Object.entries(comparisions)) {
+                    newComparisons[getNumberWithOrdinal(index)] = value;
+                    index++;
+                }
+                localStorage.setItem('comparisions', JSON.stringify(newComparisons));
+    
+                var totalComparisons = Object.keys(newComparisons).length;
+                
+                $('.main-total-comparisions').text(totalComparisons + (totalComparisons === 1 ? ' Car Added' : ' Cars Added'));
+                $('.total-comparisions').text(totalComparisons);
+            } else {
+                console.log('Key does not exist. Unable to delete.');
+            }
+        } else {
+            console.log('Invalid index. Please provide an index between 1 and 6.');
+        }
+    }
+
     $.ajax({
         url: baseURL + '/api/garage-vehicles',
         method: 'GET',
@@ -1891,7 +1897,7 @@ $(document).ready(function () {
 
 
 function vehicleDetail(vehicle, index, currentState, name, ID, data) {
-    
+
     name = name.replace(/<\/?i>/g, '');
 
     $('.tableinnercols').each(function () {
