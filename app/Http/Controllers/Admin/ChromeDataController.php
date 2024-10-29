@@ -173,7 +173,7 @@ class ChromeDataController extends Controller
 
                 if (isset($chromeModels->responseStatus->responseCode) && $chromeModels->responseStatus->responseCode == 'Successful') {
                     foreach ($chromeModels->model as $chromeModel) {
-                        if (isset($chromeModel->id) && isset($chromemModel->_)) {
+                        if (isset($chromeModel->id) && isset($chromeModel->_)) {
                             $existingModel = Model::updateOrCreate(
                                 ['division_id' => $division->id, 'number' => $chromeModel->id, 'deleted' => 0],
                                 ['name' => $chromeModel->_]
