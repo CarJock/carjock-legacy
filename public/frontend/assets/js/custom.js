@@ -1283,199 +1283,6 @@ $(window).on('load', function () {
 
     });
 
-
-    const prePopulatedItems = [
-        { id: 1, text: 'Toyota Camry', data: { id: 1, name: 'Toyota Camry' } },
-        { id: 2, text: 'Honda Accord', data: { id: 2, name: 'Honda Accord' } },
-        { id: 3, text: 'Ford Focus', data: { id: 3, name: 'Ford Focus' } }
-    ];
-
-    // When the dropdown is opened, show the pre-populated items
-    $('.carselectoroption').on('select2:open', function () {
-        const dropdown = $('.select2-results__options'); // The dropdown where items are displayed
-
-        // Prepend the pre-populated items when opening the dropdown
-        if (dropdown.find('li').length === 0) { // If no items are present in the dropdown
-            prePopulatedItems.forEach(function (item) {
-                // Append each pre-populated item to the dropdown
-                const $option = $('<li class="select2-results__option" role="option" aria-selected="false"></li>')
-                    .text(item.text)
-                    .attr('data-select2-id', item.id)
-                    .on('click', function () { // Handle the selection of pre-populated items
-                        $('.carselectoroption').val(item.id).trigger('change');
-                    });
-                dropdown.append($option);
-            });
-        }
-    });
-
-    $.ajax({
-        url: baseURL + '/api/garage-vehicles', // Your new endpoint
-        method: 'GET',
-        dataType: 'json',
-        success: function (garageVehicles) {
-            $('.carselectoroption').select2({
-                ajax: {
-                    url: baseURL + '/api/cars',  // The endpoint for searching cars
-                    dataType: 'json',
-                    delay: 200,        // Add delay to reduce the number of requests
-                    data: function (params) {
-                        return {
-                            search: params.term, // The search term entered by the user
-                            page: params.page || 1 // Pagination, if your API supports it
-                        };
-                    },
-                    processResults: function (data, params) {
-                        params.page = params.page || 1;
-                        if (data.items.length) {
-                            return {
-                                results: data.items.map(function (car) {  // Map the data into select2 format
-                                    return {
-                                        id: car.id,
-                                        text: car.name,
-                                        data: car
-                                    };
-                                }),
-                                pagination: {
-                                    more: data.hasMore // Check if there are more pages of results
-                                }
-                            };
-                        } else {
-
-                            return {
-                                results: garageVehicles.map(function (car) {  // Map the data to id and text for Select2
-                                    return {
-                                        id: car.id,
-                                        text: car.text + ' <i>(My Garage Item)</i>'  // Append "My Garage Item" or any specific text if needed
-                                    };
-                                }),
-                                pagination: {
-                                    more: false // Indicate there are no more results when garageVehicles are shown
-                                }
-                            };
-
-                        }
-                    },
-                    cache: true // Cache the results for faster subsequent queries
-                },
-                escapeMarkup: function (markup) { return markup; },
-                minimumInputLength: 0,
-                placeholder: 'Search for a vehicle',
-                allowClear: true
-            })
-                .on('change', function (e) {
-                    $('.resetfiltersettings').fadeIn();
-                    var selectedData = $(this).select2('data');
-
-                    if (Array.isArray(selectedData) && selectedData.length > 0) {
-                        var carData = selectedData[0];
-                        var ID = carData.id;
-                        var name = carData.text;
-                        var carFullData = carData.data; // Contains all car info
-
-                    } else {
-                        var name = 'N/A';
-                        var ID = 0;
-                        console.log('selectedData is either not an array or it is empty.');
-                    }
-
-                    if (ID == 0) return false;
-                    var currentState = $(this).parent().next();
-
-                    if (name !== 'Select Vehicle') {
-                        let vehicle_link = '<a href="' + siteurl + 'vehicle/' + ID + '" target="_blank">' + (name.length > 35 ? name.substring(0, 35) + '...' : name) + '</a>';
-                        currentState.find('.title').html(vehicle_link);
-                        currentState.find('.vehicleprofile').attr("onclick", "window.location.href='" + siteurl + 'vehicle/' + ID + "';");
-                        currentState.find('.social-share-links a').eq(0).attr("onclick", "window.open('https://www.facebook.com/sharer/sharer.php?u=" + siteurl + 'vehicle/' + ID + "');");
-                        currentState.find('.social-share-links a').eq(1).attr("onclick", "window.open('https://twitter.com/intent/tweet?url=" + siteurl + 'vehicle/' + ID + "');");
-                        currentState.find('.social-share-links a').eq(2).attr("onclick", "window.open('mailto:?subject=Check%20out%20this%20vehicle&body=" + siteurl + 'vehicle/' + ID + "');");
-                        currentState.find('.favourite-vehicle').attr("onclick", "makeFavourite('" + ID + "', '" + auth_user_id + "')");
-                        currentState.find('.favourite-vehicle').parent().attr("id", "favourite-" + ID);
-                    }
-
-                    var rankTag = $(this).parent().next().find('.ranktag').text();
-
-                    SaveDataToLocalStorage(carFullData, rankTag);
-                    $('.carcomparisionlists').css('visibility', 'visible');
-                    $('.comaprisionblock').css('display', 'block');
-                    $('#savecomparisions').removeAttr('disabled').removeAttr('style').text('Save');
-                    currentState.find('.vehicledelete').attr('data-id', ID);
-
-
-                    if (rankTag == '1st') {
-                        currentState.find('.favourite-vehicle i').css('color', carFullData?.user?.length > 0 ? 'red' : '');
-                        vehicleDetail(JSON.parse(carFullData.data), 0, currentState, name, ID, carFullData);
-                    }
-
-                    if (rankTag == '2nd') {
-                        currentState.find('.favourite-vehicle i').css('color', carFullData?.user?.length > 0 ? 'red' : '');
-                        vehicleDetail(JSON.parse(carFullData.data), 1, currentState, name, ID, carFullData);
-                    }
-
-                    if (rankTag == '3rd') {
-                        currentState.find('.favourite-vehicle i').css('color', carFullData?.user?.length > 0 ? 'red' : '');
-                        vehicleDetail(JSON.parse(carFullData.data), 2, currentState, name, ID, carFullData);
-                    }
-
-                    if (rankTag == '4th') {
-                        currentState.find('.favourite-vehicle i').css('color', carFullData?.user?.length > 0 ? 'red' : '');
-                        vehicleDetail(JSON.parse(carFullData.data), 3, currentState, name, ID, carFullData);
-                    }
-
-                    if (rankTag == '5th') {
-                        currentState.find('.favourite-vehicle i').css('color', carFullData?.user?.length > 0 ? 'red' : '');
-                        vehicleDetail(JSON.parse(carFullData.data), 4, currentState, name, ID, carFullData);
-                    }
-
-                    if (rankTag == '6th') {
-                        currentState.find('.favourite-vehicle i').css('color', carFullData?.user?.length > 0 ? 'red' : '');
-                        vehicleDetail(JSON.parse(carFullData.data), 5, currentState, name, ID, carFullData);
-                    }
-
-                    // Run the following block once, instead of using setInterval
-                    var maxPowerHorse = Math.max.apply([], $('.specifications-horse-power').next().children().map(function () {
-                        return $(this).find('.valueholder').text();
-                    }).get());
-
-                    var maxRpm = Math.max.apply([], $('.specifications-rpm').next().children().map(function () {
-                        return $(this).find('.valueholder').text();
-                    }).get());
-
-                    var maxTourque = Math.max.apply([], $('.specifications-torque').next().children().map(function () {
-                        return $(this).find('.valueholder').text();
-                    }).get());
-
-                    var maxTourqueRpm = Math.max.apply([], $('.specifications-torque-rpm').next().children().map(function () {
-                        return $(this).find('.valueholder').text();
-                    }).get());
-
-                    $('.specifications-horse-power').next().children().each(function () {
-                        var currentPowerHorse = parseInt($(this).find('.valueholder').text());
-                        $(this).find('.horsepowermeter').children().css('width', (currentPowerHorse >= maxPowerHorse ? 100 : currentPowerHorse * 100 / maxPowerHorse) + '%');
-                    });
-
-                    $('.specifications-rpm').next().children().each(function () {
-                        var currentPowerHorse = parseInt($(this).find('.valueholder').text());
-                        $(this).find('.horsepowermeter').children().css('width', (currentPowerHorse >= maxRpm ? 100 : currentPowerHorse * 100 / maxRpm) + '%');
-                    });
-
-                    $('.specifications-torque').next().children().each(function () {
-                        var currentPowerHorse = parseInt($(this).find('.valueholder').text());
-                        $(this).find('.horsepowermeter').children().css('width', (currentPowerHorse >= maxTourque ? 100 : currentPowerHorse * 100 / maxTourque) + '%');
-                    });
-
-                    $('.specifications-torque-rpm').next().children().each(function () {
-                        var currentPowerHorse = parseInt($(this).find('.valueholder').text());
-                        $(this).find('.horsepowermeter').children().css('width', (currentPowerHorse >= maxTourqueRpm ? 100 : currentPowerHorse * 100 / maxTourqueRpm) + '%');
-                    });
-                });
-        },
-        error: function () {
-            console.error('Failed to fetch garage vehicles.');
-        }
-    });
-
-
     $('.newcarselectoroption').select2()
         .on('change', function (e) {
             console.log($(".firstcomparision").is(":hidden"))
@@ -1483,7 +1290,7 @@ $(window).on('load', function () {
 
 
     $('.select-vehicle').on('click', function () {
-        
+
         const $children = $(".dragableslidingcars").children();
         if ($children.filter(":hidden").length === 0) {
             alert("Max cars have been reached. Remove a car or start a new comparison to continue.");
@@ -1512,13 +1319,13 @@ $(window).on('load', function () {
         }
 
         // If no cars are hidden at all, show the alert
-        
+
     });
 
 
 
     $('.vehicledelete').on('click', function () {
-        
+
         var currentState = $(this).parent().parent()
         $(".dragableslidingcars").append(currentState.parent().parent().hide());
         currentState.find('.title').text('-');
@@ -1563,7 +1370,7 @@ $(window).on('load', function () {
             elem.innerHTML = getNumberWithOrdinal(indexnum + 1);
         })
 
-        
+
     })
 
     $('.horsepowermeter').each(function () {
@@ -1905,52 +1712,6 @@ function getQueryParam(parameterName) {
     return null;
 }
 
-
-$(document).ready(function () {
-    if (getQueryParam('comparisions')) {
-        const comparisions = getQueryParam('comparisions').split(',');
-        $('.total-comparisions').html(comparisions.length);
-        initializeComparisionSelectors(comparisions);
-    } else if (localStorage.getItem('comparisions') && Object.keys(JSON.parse(localStorage.getItem('comparisions'))).length > 0) {
-        const comparisions = JSON.parse(localStorage.getItem('comparisions'));
-        $('.total-comparisions').html(Object.keys(comparisions).length);
-        initializeComparisionSelectors(comparisions);
-    }
-
-    function initializeComparisionSelectors(comparisons) {
-        const selectors = ['.firstcomparision', '.secondcomparision', '.thirdcomparision', '.fourthcomparision', '.fifthcomparision', '.sixthcomparision'];
-
-        // Loop through the comparisons and map them to selectors
-        Object.entries(comparisons).forEach(([rank, carObj], index) => {
-            // Ensure index is within the range of selectors
-            if (index < selectors.length) {
-                const selector = selectors[index];
-
-                // Fade in the corresponding comparison selector smoothly
-                $(selector).fadeIn(1000);  // Adjust the timing as needed (500ms here)
-
-                // Create a new option for select2 and add it
-                const option = new Option(carObj.name, carObj.id, true, true);
-                $(selector + ' .carselectoroption').append(option).trigger('change');
-
-                // Update rank tag or other elements for each vehicle
-
-                // Assuming carObj contains `user`, `name`, and `data` fields
-                $(selector).find('.favourite-vehicle i').css('color', carObj.user.length > 0 ? 'red' : '');
-
-                // Apply slide-down animation for the car details if needed
-                $(selector).find('.car-details').slideDown(400);  // Slide down animation for car details
-
-                // Make sure carFullData is used correctly (if it comes from carObj)
-                vehicleDetail(JSON.parse(carObj.data), index, $(selector), carObj.name, carObj.id, carObj);
-            }
-        });
-    }
-
-});
-
-
-
 // function priceWithCommas(x) {
 //     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 // }
@@ -1971,8 +1732,168 @@ function priceWithCommas(value) {
     return formattedPrice;
 }
 
+
+
+$(document).ready(function () {
+    $.ajax({
+        url: baseURL + '/api/garage-vehicles',
+        method: 'GET',
+        dataType: 'json',
+        success: function (garageVehicles) {
+            // Initialize the select2 with AJAX search
+            $('.carselectoroption').select2({
+                ajax: {
+                    url: baseURL + '/api/cars',
+                    dataType: 'json',
+                    delay: 200,
+                    data: function (params) {
+                        return {
+                            search: params.term,
+                            page: params.page || 1
+                        };
+                    },
+                    processResults: function (data, params) {
+                        params.page = params.page || 1;
+
+                        // Check if API search returned any items
+                        if (data.items.length) {
+                            return {
+                                results: data.items.map(function (car) {
+                                    return {
+                                        id: car.id,
+                                        text: car.name,
+                                        image: car.image,
+                                        data: car.data
+                                    };
+                                }),
+                                pagination: {
+                                    more: data.hasMore
+                                }
+                            };
+                        } else {
+                            // No search results, fall back to garage vehicles
+                            return {
+                                results: garageVehicles.map(function (car) {
+                                    return {
+                                        id: car.id,
+                                        text: car.name + ' <i>(My Garage Item)</i>',
+                                        image: car.image,
+                                        data: car.data
+                                    };
+                                }),
+                                pagination: {
+                                    more: false
+                                }
+                            };
+                        }
+                    },
+                    cache: true
+                },
+                escapeMarkup: function (markup) { return markup; },
+                minimumInputLength: 0,
+                placeholder: 'Search for a vehicle',
+                allowClear: true
+            })
+                .on('change', function (e) {
+                    const selectedData = $(this).select2('data');
+
+                    if (selectedData.length > 0) {
+                        const carData = selectedData[0];
+                        const ID = carData.id;
+                        const name = carData.text;
+                        const carFullData = carData;
+
+                        let currentState = $(this).parent().next();
+                        if (name !== 'Select Vehicle') {
+                            let vehicle_link = `<a href="${siteurl}vehicle/${ID}" target="_blank">${name.substring(0, 35)}${name.length > 35 ? '...' : ''}</a>`;
+                            currentState.find('.title').html(vehicle_link);
+                            currentState.find('.vehicleprofile').attr("onclick", `window.location.href='${siteurl}vehicle/${ID}'`);
+                            currentState.find('.social-share-links a').eq(0).attr("onclick", `window.open('https://www.facebook.com/sharer/sharer.php?u=${siteurl}vehicle/${ID}')`);
+                            currentState.find('.social-share-links a').eq(1).attr("onclick", `window.open('https://twitter.com/intent/tweet?url=${siteurl}vehicle/${ID}')`);
+                            currentState.find('.social-share-links a').eq(2).attr("onclick", `window.open('mailto:?subject=Check%20out%20this%20vehicle&body=${siteurl}vehicle/${ID}')`);
+                            currentState.find('.favourite-vehicle').attr("onclick", `makeFavourite('${ID}', '${auth_user_id}')`);
+                            currentState.find('.favourite-vehicle').parent().attr("id", `favourite-${ID}`);
+                        }
+
+                        let rankTag = $(this).parent().next().find('.ranktag').text();
+                        SaveDataToLocalStorage(carFullData, rankTag);
+                        $('.resetfiltersettings').fadeIn();
+                        $('.carcomparisionlists').css('visibility', 'visible');
+                        $('.comaprisionblock').css('display', 'block');
+                        $('#savecomparisions').removeAttr('disabled').removeAttr('style').text('Save');
+                        currentState.find('.vehicledelete').attr('data-id', ID);
+
+                        if (rankTag) {
+                            currentState.find('.favourite-vehicle i').css('color', carFullData?.user?.length > 0 ? 'red' : '');
+                            vehicleDetail(JSON.parse(carFullData.data), rankTag.slice(0, 1) - 1, currentState, name, ID, carFullData);
+                        }
+
+                        // Calculations for specifications
+                        ['horse-power', 'rpm', 'torque', 'torque-rpm'].forEach(spec => {
+                            let maxSpec = Math.max(...$(`.specifications-${spec}`).next().children().map(function () {
+                                return parseInt($(this).find('.valueholder').text());
+                            }).get());
+
+                            $(`.specifications-${spec}`).next().children().each(function () {
+                                let currentSpec = parseInt($(this).find('.valueholder').text());
+                                $(this).find('.horsepowermeter').children().css('width', currentSpec >= maxSpec ? '100%' : `${(currentSpec * 100) / maxSpec}%`);
+                            });
+                        });
+                    } else {
+                        console.log('selectedData is either not an array or it is empty.');
+                    }
+                });
+        },
+        error: function () {
+            console.error('Failed to fetch garage vehicles.');
+        }
+    });
+    // Retrieve the comparison data from URL or localStorage
+    const storedComparisons = localStorage.getItem('comparisions') ? JSON.parse(localStorage.getItem('comparisions')) : {};
+
+    $('.total-comparisions').html(Object.keys(storedComparisons).length);
+
+    // Initialize selectors with comparison data
+    initializeComparisionSelectors(storedComparisons);
+
+    function initializeComparisionSelectors(comparisons) {
+        const selectors = ['.firstcomparision', '.secondcomparision', '.thirdcomparision', '.fourthcomparision', '.fifthcomparision', '.sixthcomparision'];
+        // Loop through comparisons and map them to selectors
+        Object.entries(comparisons).forEach(([rank, carObj], index) => {
+            if (index < selectors.length) {
+                const selector = selectors[index];
+
+                $(selector).show(); // Fade-in animation
+
+                // Create a new option for select2 and set it as selected
+                const option = new Option(carObj.text, carObj.id, true, true);
+                $(selector + ' .carselectoroption').append(option).trigger('change');
+
+                // Display favorite icon based on user data
+                $(selector).find('.favourite-vehicle i').css('color', carObj?.user?.length > 0 ? 'red' : '');
+
+                // Show car details with slide-down animation
+                $(selector).find('.car-details').slideDown(400);
+
+                $('.resetfiltersettings').fadeIn();
+                $('.carcomparisionlists').css('visibility', 'visible');
+                $('.comaprisionblock').css('display', 'block');
+                $('#savecomparisions').removeAttr('disabled').removeAttr('style').text('Save');
+                $(selector).find('.vehicledelete').attr('data-id', carObj.id);
+
+                // Display car details if data exists
+                vehicleDetail(JSON.parse(carObj.data), index, $(selector), carObj.text, carObj.id, carObj);
+            }
+        });
+    }
+
+});
+
+
 function vehicleDetail(vehicle, index, currentState, name, ID, data) {
-    //Store 1st selection car
+    
+    name = name.replace(/<\/?i>/g, '');
+
     $('.tableinnercols').each(function () {
         $(this).children().eq(index).fadeIn();
         $(this).children().eq(index).text('-');

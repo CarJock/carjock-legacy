@@ -45,22 +45,20 @@ class CompareController extends Controller
                 ->where('user_id', $userId)
                 ->where('type', 'garage')
                 ->join('vehicles', 'vehicles.id', '=', 'user_vehicle.vehicle_id')
-                ->select('vehicles.id', 'vehicles.name')
+                ->select('vehicles.id', 'vehicles.name', 'vehicles.data', 'vehicles.image')
                 ->get();
         }
 
         return response()->json($garageVehicles->map(function ($uv) {
             return [
                 'id' => $uv->id,
-                'text' => $uv->name,
-                'note' => 'My Garage Item'
+                'name' => $uv->name,
+                'note' => 'My Garage Item',
+                'image' => $uv->image,
+                'data' => json_decode($uv->data, true)
             ];
         }));
     }
-
-
-
-
 
     public function searchCars(Request $request)
     {
@@ -89,12 +87,20 @@ class CompareController extends Controller
         $cars = $query->paginate($perPage, ['*'], 'page', $page);
 
         $results = [
-            'items' => $cars->items(),
+            'items' => $cars->map(function ($car) {
+                return [
+                    'id' => $car->id,
+                    'name' => $car->name,
+                    'image' => $car->image,
+                    'data' => $car->data, // Decode the `data` field
+                ];
+            }),
             'hasMore' => $cars->hasMorePages()
         ];
 
         return response()->json($results);
     }
+
 
 
 
