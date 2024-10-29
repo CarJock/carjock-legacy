@@ -254,90 +254,88 @@ class HomeController extends Controller
         // Generate a unique cache key based on the search parameters
         $cacheKey = 'vehicles_search_' . md5(json_encode(request()->all()));
         // Check if the 'recache' parameter is present to bypass the cache
-        // $forceRecache = request()->input('recache') === 'true';
-
-
-        $vehiclesQuery = Vehicle::where('garage', 0)
-            ->where('pricing', '!=', 0);
-
-        if ($year) {
-            $vehiclesQuery->where('year', $year);
-        } else {
-            $vehiclesQuery->where(function ($query) {
-                $query->where('year', '2023')
-                    ->orWhere('year', '2024');
-            });
-        }
-
-        if ($make) {
-            $vehiclesQuery->where('division', $make);
-        }
-
-        if ($model) {
-            $vehiclesQuery->where('name', 'like', '%' . $model . '%');
-        }
-
-        if (is_array($up_range) && count($up_range) > 0) {
-            foreach ($up_range as $key => $value) {
-                if ($key == 'cargo_volume') {
-                    $key = 'cargo_volume_to_seat_1';
-                }
-                $vehiclesQuery->where($key, '>', (int)$value);
-            }
-        }
-
-        if (is_array($down_range) && count($down_range) > 0) {
-            foreach ($down_range as $key => $value) {
-                $vehiclesQuery->where($key, '<', (int)$value);
-            }
-        }
-
-        if (is_array($find) && count($find) > 0) {
-            foreach ($find as $key => $value) {
-                if ($key === 'sun_moon_roof') {
-                    $vehiclesQuery->where('data', 'like', '%/Moonroof%');
-                } else {
-                    $vehiclesQuery->where('data', 'like', '%' . $value . '%');
-                }
-            }
-        }
-
-        if (is_array($search) && count($search) > 0) {
-            foreach ($search as $key => $value) {
-                if ($key === 'body_type') {
-                    $vehiclesQuery->whereIn('body_type', explode('|', $value));
-                }
-
-                if ($key === 'fuel_type') {
-                    $vehiclesQuery->whereHas('fuel_type', function ($query) use ($value) {
-                        $query->whereIn('name', explode('|', $value));
-                    })
-                        ->where('fuel_type_id', '!=', 0)
-                        ->whereNotNull('fuel_type_id');
-                }
-
-                if ($key === 'drive_train') {
-                    $vehiclesQuery->where('data', 'like', '%' . $value . '%');
-                }
-
-                if ($key === 'max_passenger') {
-                    $vehiclesQuery->where('seating', $value);
-                }
-
-                if ($key === 'price' && $value !== '$') {
-                    $vehiclesQuery->where('pricing', '<=', (int)str_replace('$', '', $value));
-                }
-            }
-        }
-        return $vehiclesQuery
-            // ->orderBy('created_at', 'desc')
-            ->orderBy($sort, $sort_type)
-            ->paginate(12)
-            ->withQueryString();
-
+        $forceRecache = request()->input('recache') === 'true';
 
         // Check if the results for this search are already cached
-        // $vehicles = Cache::remember($cacheKey, now()->addDays(30), function () use ($year, $make, $model, $up_range, $down_range, $find, $search, $sort, $sort_type) {}, $forceRecache ? now() : now()->addDays(30));
+        $vehicles = Cache::remember($cacheKey, now()->addDays(30), function () use ($year, $make, $model, $up_range, $down_range, $find, $search, $sort, $sort_type) {
+            $vehiclesQuery = Vehicle::where('garage', 0)
+                ->where('pricing', '!=', 0);
+
+            if ($year) {
+                $vehiclesQuery->where('year', $year);
+            } else {
+                $vehiclesQuery->where(function ($query) {
+                    $query->where('year', '2023')
+                        ->orWhere('year', '2024');
+                });
+            }
+
+            if ($make) {
+                $vehiclesQuery->where('division', $make);
+            }
+
+            if ($model) {
+                $vehiclesQuery->where('name', 'like', '%' . $model . '%');
+            }
+
+            if (is_array($up_range) && count($up_range) > 0) {
+                foreach ($up_range as $key => $value) {
+                    if ($key == 'cargo_volume') {
+                        $key = 'cargo_volume_to_seat_1';
+                    }
+                    $vehiclesQuery->where($key, '>', (int)$value);
+                }
+            }
+
+            if (is_array($down_range) && count($down_range) > 0) {
+                foreach ($down_range as $key => $value) {
+                    $vehiclesQuery->where($key, '<', (int)$value);
+                }
+            }
+
+            if (is_array($find) && count($find) > 0) {
+                foreach ($find as $key => $value) {
+                    if ($key === 'sun_moon_roof') {
+                        $vehiclesQuery->where('data', 'like', '%/Moonroof%');
+                    } else {
+                        $vehiclesQuery->where('data', 'like', '%' . $value . '%');
+                    }
+                }
+            }
+
+            if (is_array($search) && count($search) > 0) {
+                foreach ($search as $key => $value) {
+                    if ($key === 'body_type') {
+                        $vehiclesQuery->whereIn('body_type', explode('|', $value));
+                    }
+
+                    if ($key === 'fuel_type') {
+                        $vehiclesQuery->whereHas('fuel_type', function ($query) use ($value) {
+                            $query->whereIn('name', explode('|', $value));
+                        })
+                            ->where('fuel_type_id', '!=', 0)
+                            ->whereNotNull('fuel_type_id');
+                    }
+
+                    if ($key === 'drive_train') {
+                        $vehiclesQuery->where('data', 'like', '%' . $value . '%');
+                    }
+
+                    if ($key === 'max_passenger') {
+                        $vehiclesQuery->where('seating', $value);
+                    }
+
+                    if ($key === 'price' && $value !== '$') {
+                        $vehiclesQuery->where('pricing', '<=', (int)str_replace('$', '', $value));
+                    }
+                }
+            }
+            return $vehiclesQuery
+                // ->orderBy('created_at', 'desc')
+                ->orderBy($sort, $sort_type)
+                ->paginate(12)
+                ->withQueryString();
+        }, $forceRecache ? now() : now()->addDays(30));
 
         $models = '';
         if (isset(request()->make)) {
