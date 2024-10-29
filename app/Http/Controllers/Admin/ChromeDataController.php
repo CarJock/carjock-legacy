@@ -95,7 +95,7 @@ class ChromeDataController extends Controller
         // If "all" is selected in styles dropdown
         if (is_array($styleIds) && in_array('all', $styleIds)) {
             // Check if "all" is selected in models
-            if ($modelId == 'all') {
+            if (is_array($modelId) && in_array('all', $modelId)) {
                 // Fetch division IDs based on the year
                 if ($divisionId == 'all') {
                     // Get all division IDs for the selected year
@@ -108,7 +108,7 @@ class ChromeDataController extends Controller
                 $modelIds = Model::whereIn('division_id', $divisionIds)->pluck('id')->toArray();
             } else {
                 // If a specific model is selected, use it
-                $modelIds = [$modelId];
+                $modelIds = $modelId;
             }
 
             // Fetch style IDs from selected models
@@ -276,7 +276,7 @@ class ChromeDataController extends Controller
         $updatedStyles = [];
 
 
-        if ($modelId == 'all') {
+        if (is_array($modelId) && in_array('all', $modelId)) {
             // Fetch division IDs based on the year
             if ($divisionId == 'all') {
                 // Get all division IDs for the selected year
@@ -289,7 +289,7 @@ class ChromeDataController extends Controller
             $modelIds = Model::whereIn('division_id', $divisionIds)->pluck('id')->toArray();
         } else {
             // If a specific model is selected, use it
-            $modelIds = [$modelId];
+            $modelIds = $modelId;
         }
 
         $models = Model::whereIn('id', $modelIds)->get();
@@ -341,7 +341,7 @@ class ChromeDataController extends Controller
         // If "all" is selected in styles dropdown
         if (is_array($styleIds) && in_array('all', $styleIds)) {
             // Check if "all" is selected in models
-            if ($modelId == 'all') {
+            if (is_array($modelId) && in_array('all', $modelId)) {
                 // Fetch division IDs based on the year
                 if ($divisionId == 'all') {
                     // Get all division IDs for the selected year
@@ -353,8 +353,8 @@ class ChromeDataController extends Controller
                 // Get all model IDs from those divisions
                 $modelIds = Model::whereIn('division_id', $divisionIds)->pluck('id')->toArray();
             } else {
-                // If a specific model is selected, use it
-                $modelIds = [$modelId];
+                
+                $modelIds = $modelId;
             }
 
             // Fetch styles for the selected models, apply the limit only if it's not null
