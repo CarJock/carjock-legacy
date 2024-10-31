@@ -342,7 +342,7 @@ class ChromeDataController extends Controller
         $styles = collect();
 
         // If "all" is selected in styles dropdown
-        if (is_array($styleIds) && in_array('all', $styleIds)) {
+        if (is_array($styleIds) && in_array('all', $styleIds) || empty($styleIds)) {
             // Check if "all" is selected in models
             if (is_array($modelId) && in_array('all', $modelId)) {
                 // Fetch division IDs based on the year
@@ -370,6 +370,9 @@ class ChromeDataController extends Controller
             }
             $styles = $stylesQuery->get();
         } else {
+            if(empty($styleIds)) {
+                $styleIds = [];
+            }
             $stylesQuery = Style::whereIn('id', $styleIds);
             if ($limit) {
 
