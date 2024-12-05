@@ -19,7 +19,16 @@
                     @else
                     <li><a title="Add to favorite" href="javascript:;" data-toggle="modal" data-target="#login-alert"><i class="fas fa-heart"></i></a></li>
                     <li><a title="Share" href="javascript:;" class="socialshare"><i class="fal fa-share-alt"></i></a></li>
-                    <li><a title="compare" data-vehicle-id="{{ $vehicle->id }}" href="javascript:;" class="btnCompare2"><i class="fal fa-retweet"></i></a></li>
+                    <li>
+                        <a title="compare" 
+                        data-vehicle-id="{{ $vehicle->id }}" 
+                        data-vehicle='@json($vehicle)' 
+                        href="javascript:;" 
+                        class="btnCompare2">
+                        <i class="fal fa-retweet"></i>
+                        </a>
+                    </li>
+                    <!-- <li><a title="compare" data-vehicle-id="{{ $vehicle->id }}" href="javascript:;" class="btnCompare2"><i class="fal fa-retweet"></i></a></li> -->
                     @if(!isset($simple))
                     {{-- <li><a title="Compare" style="padding:0;background:none" href="javascript:void(0)" data-toggle="modal" data-target="#login-alert"><img width="40" src="{{ asset('frontend/assets/images/chain-icon.png') }}" alt=""></a></li> --}}
                     @endif
