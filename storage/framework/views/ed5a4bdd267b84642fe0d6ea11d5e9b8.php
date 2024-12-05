@@ -1,0 +1,1 @@
+<?php /**PATH /var/www/html/carjock/resources/views/frontend/compare-layouts/comparisions-information.blade.php ENDPATH**/ ?>

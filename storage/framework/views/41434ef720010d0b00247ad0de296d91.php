@@ -1,0 +1,1 @@
+<?php /**PATH /var/www/html/carjock/resources/views/vendor/pagination/simple-default.blade.php ENDPATH**/ ?>

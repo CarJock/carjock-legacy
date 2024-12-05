@@ -1,0 +1,1 @@
+<?php /**PATH /var/www/html/carjock/resources/views/admin/featured-cars/create.blade.php ENDPATH**/ ?>
