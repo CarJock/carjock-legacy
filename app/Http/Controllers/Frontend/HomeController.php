@@ -134,25 +134,15 @@ class HomeController extends Controller
         }
         $images = VehicleImage::where('style_id', $vehicle->style_number)->get();
 
-        // //dd($images->count());
-        // return view('frontend.vehicle-detail', [
-        //     'id' => $id,
-        //     'vehicle' => $vehicle,
-        //     'detail' => $detail,
-        //     'related' => $related_vehicles ?? null,
-        //     'images' => $images
-        // ]);
-
-         // **Check if it's an AJAX request**
-    if ($request->ajax()) {
-        // Return data as JSON
-        return response()->json([
-            'vehicle' => $vehicle,
-            'detail' => $detail,
-            'related' => $related_vehicles ?? [],
-            'images' => $images
-        ]);
-    }
+        if ($request->ajax()) {
+            // Return data as JSON
+            return response()->json([
+                'vehicle' => $vehicle,
+                'detail' => $detail,
+                'related' => $related_vehicles ?? [],
+                'images' => $images
+            ]);
+        }
 
     // For regular HTTP requests, return the view
     return view('frontend.vehicle-detail', [
