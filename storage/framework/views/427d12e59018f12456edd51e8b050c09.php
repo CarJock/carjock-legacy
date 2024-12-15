@@ -1,53 +1,36 @@
-@extends('frontend.layouts.app')
+<?php $__env->startSection('content'); ?>
 
-@section('content')
-{{-- <div class="mainBanner bannerheightadjust" style="background-image:url({{ asset('frontend/assets/images/group-597.jpg') }});
-background-size: cover; background-repeat: no-repeat;">
-<div class="container-fluid">
-    <div class="row">
-        <div class="mainbanneroverlay">
-            <h2>{{ $vehicle->name }}</h2>
-            <div class="breadcrumb">
-                <ul>
-                    <li>Home</li>
-                    <li>{{ $vehicle->name }}</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-</div> --}}
 
 <section id="vehicle-detail-loading" class="detail-sec">
     <div class="container">
         <div class="row">
             <div class="col-md-8">
-                <h2>{{ $vehicle->name }}</h2>
-                <h3>${{ number_format(($detail->style->basePrice->msrp), 2) }}</h3>
+                <h2><?php echo e($vehicle->name); ?></h2>
+                <h3>$<?php echo e(number_format(($detail->style->basePrice->msrp), 2)); ?></h3>
                 <p></p>
             </div>
             <div class="col-md-4">
                 <div class="icon">
                     <a title="Share" href="javascript:void(0)" class="showsocial"><img
-                            src="{{ asset('frontend/assets/images/share-icon.png') }}" alt=""></a>
+                            src="<?php echo e(asset('frontend/assets/images/share-icon.png')); ?>" alt=""></a>
 
-                    @if(Auth::check())
-                    <a title="Save" onclick="makeFavourite({{$vehicle->id}}, {{auth()->user()->id}})"
+                    <?php if(Auth::check()): ?>
+                    <a title="Save" onclick="makeFavourite(<?php echo e($vehicle->id); ?>, <?php echo e(auth()->user()->id); ?>)"
                         href="javascript:void(0)"
-                        style="color: {{ auth()->user()->vehicles()->where('vehicle_id', $vehicle->id)->count() > 0 ? 'red' : '#fff' }}"
+                        style="color: <?php echo e(auth()->user()->vehicles()->where('vehicle_id', $vehicle->id)->count() > 0 ? 'red' : '#fff'); ?>"
                         class="favourite-vehicle detail">
-                        @if(auth()->user()->vehicles()->where('vehicle_id', $vehicle->id)->count() > 0)
-                        <img src="{{ asset('frontend/assets/images/heart-icon-filled.png') }}" alt="">
-                        @else
-                        <img src="{{ asset('frontend/assets/images/heart-icon.png') }}" alt="">
+                        <?php if(auth()->user()->vehicles()->where('vehicle_id', $vehicle->id)->count() > 0): ?>
+                        <img src="<?php echo e(asset('frontend/assets/images/heart-icon-filled.png')); ?>" alt="">
+                        <?php else: ?>
+                        <img src="<?php echo e(asset('frontend/assets/images/heart-icon.png')); ?>" alt="">
 
-                        @endif
+                        <?php endif; ?>
                     </a>
-                    @else
+                    <?php else: ?>
                     <a title="Save" href="javascript:void(0)" data-toggle="modal" data-target="#login-alert"><img
-                            src="{{ asset('frontend/assets/images/heart-icon.png') }}" alt=""></a>
-                    @endif
-                    <a title="compare" data-vehicle-id="{{ $vehicle->id }}" href="javascript:;"
+                            src="<?php echo e(asset('frontend/assets/images/heart-icon.png')); ?>" alt=""></a>
+                    <?php endif; ?>
+                    <a title="compare" data-vehicle-id="<?php echo e($vehicle->id); ?>" href="javascript:;"
                         class="compareIconinCarDetailPage btnCompare2"><i class="fal fa-retweet"></i></a>
 
                 </div>
@@ -76,95 +59,70 @@ background-size: cover; background-repeat: no-repeat;">
                             <a href="#" data-scrolltoaccordion="differenceaccord">Accessories</a>
                         </div>
                         <div class="comparecaraccordians tab-content mt-5">
-                            {{-- <div class="" data-accordsection="alloverview">
-                            <div class="main-img text-center">
-                                @if($vehicle->image && (file_exists($vehicle->image) || file_exists('/'.$vehicle->image)))
-                                    <img src="{{ asset($vehicle->image) }}" alt="right banner image" width=""
-                            height="auto">
-                            @endif
-                        </div>
-                        @if($images->count() > 0)
-                        <div class="slider-sec">
-                            <ul class="index-sliderzz">
-                                @foreach ($images as $image)
-                                <li>
-                                    <a href="#">
-                                        <img src="{{ asset($image->image) }}" alt="">
-                                    </a>
-                                </li>
-                                @endforeach
-                            </ul>
-                            <div class="testiArrows">
-                                <div class="prev prev0"><img src="{{ asset('frontend/assets/images/left-arrow.png') }}"
-                                        alt=""></div>
-                                <div class="next next0"><img
-                                        src="{{ asset('frontend/assets/images/right-circle-arrow.png') }}" alt=""></div>
-                            </div>
-                        </div>
-                        @endif
-                    </div> --}}
+                            
 
                     <div class="product-left mb-5" data-accordsection="alloverview">
-                        @if($images->count() > 0)
+                        <?php if($images->count() > 0): ?>
                         <div class="swiper-container product-slider mb-3">
                             <div class="swiper-wrapper">
-                                @foreach ($images as $image)
+                                <?php $__currentLoopData = $images; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $image): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <div class="swiper-slide">
-                                    <a href="{{ asset($image->image) }}" data-fancybox="images" data-caption="Image 2">
-                                        <img src="{{ asset($image->image) }}" alt="">
+                                    <a href="<?php echo e(asset($image->image)); ?>" data-fancybox="images" data-caption="Image 2">
+                                        <img src="<?php echo e(asset($image->image)); ?>" alt="">
                                     </a>
                                 </div>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </div>
                         </div>
 
                         <div class="swiper-container product-thumbs">
                             <div class="swiper-wrapper">
-                                @foreach ($images as $image)
+                                <?php $__currentLoopData = $images; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $image): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <div class="swiper-slide">
-                                    <img src="{{ asset($image->image) }}" alt="img-fluid">
+                                    <img src="<?php echo e(asset($image->image)); ?>" alt="img-fluid">
                                 </div>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </div>
                             <div class="swiper-button-next"></div>
                             <div class="swiper-button-prev"></div>
                         </div>
 
-                        @endif
+                        <?php endif; ?>
                     </div>
 
-                    @if(App\Models\Setting::where('meta_key', 'vehicle_detail_icons')->where('meta_value',
-                    'on')->first())
+                    <?php if(App\Models\Setting::where('meta_key', 'vehicle_detail_icons')->where('meta_value',
+                    'on')->first()): ?>
                     <div class="car-icon-box">
                         <ul class="index-sliderzz">
                             <li>
                                 <a href="#">
-                                    <div><img src="{{ asset('frontend/assets/images/icons-05-03.png') }}" alt=""></div>
+                                    <div><img src="<?php echo e(asset('frontend/assets/images/icons-05-03.png')); ?>" alt=""></div>
                                     <h5> Horsepower</h5>
-                                    <p>{{ $vehicle->horsepower }}</p>
+                                    <p><?php echo e($vehicle->horsepower); ?></p>
                                 </a>
                             </li>
                             <li>
                                 <a href="#">
 
                                     <div>
-                                        @if($vehicle->battery_range)
-                                        <img src="{{ asset('frontend/assets/images/battery.png') }}" alt="">
-                                        @else
-                                        <img src="{{ asset('frontend/assets/images/icons-05-02.png') }}" alt="">
-                                        @endif
+                                        <?php if($vehicle->battery_range): ?>
+                                        <img src="<?php echo e(asset('frontend/assets/images/battery.png')); ?>" alt="">
+                                        <?php else: ?>
+                                        <img src="<?php echo e(asset('frontend/assets/images/icons-05-02.png')); ?>" alt="">
+                                        <?php endif; ?>
                                     </div>
                                     <h5>Mileage</h5>
-                                    <p>{{  ($vehicle->battery_range) ? $vehicle->battery_range . ' MPC' : $vehicle->mpg_city . ' MPG' }}
+                                    <p><?php echo e(($vehicle->battery_range) ? $vehicle->battery_range . ' MPC' : $vehicle->mpg_city . ' MPG'); ?>
+
                                     </p>
                                 </a>
                             </li>
                             <li>
                                 <a href="#">
-                                    <div> <img src="{{ asset('frontend/assets/images/icons-05-04.png') }}" alt="">
+                                    <div> <img src="<?php echo e(asset('frontend/assets/images/icons-05-04.png')); ?>" alt="">
                                     </div>
                                     <h5>DriveTrain</h5>
-                                    <p>{{ $detail->style->drivetrain; }}</p>
+                                    <p><?php echo e($detail->style->drivetrain); ?></p>
                                 </a>
                             </li>
                             <!--<li>-->
@@ -176,15 +134,15 @@ background-size: cover; background-repeat: no-repeat;">
                             <!--</li>-->
                             <li class="new_part">
                                 <a href="#">
-                                    <div> <img src="{{ asset('frontend/assets/images/icons-05-01.png') }}" alt="">
+                                    <div> <img src="<?php echo e(asset('frontend/assets/images/icons-05-01.png')); ?>" alt="">
                                     </div>
                                     <h5>Seating Capacity</h5>
-                                    <p>{{ $vehicle->seating }} Passengers</p>
+                                    <p><?php echo e($vehicle->seating); ?> Passengers</p>
                                 </a>
                             </li>
                         </ul>
                     </div>
-                    @endif
+                    <?php endif; ?>
 
                     <div class="eachaccordian" data-accordsection="featuresaccord">
                         <div class="accordiantitle active">Vehicle</div>
@@ -930,29 +888,9 @@ Sun/Moonroof: Rooftop window"><i
                                     </div>
                                 </div>
 
-                                {{-- <div class="tablerow">
-                                        <div class="stickycol accessories-intermittent-wipers"><span class="compareheading">Intermittent Wipers</span> <span data-toggle="tooltip" title="" data-placement="right" data-original-title="tooltip text comes here"><i class="fa fa-info-circle"></i></span></div>
-                                        <div class="tableinnercols">
-                                        <div class="tablecol"></div>
-                                        <div class="tablecol"></div>
-                                        <div class="tablecol"></div>
-                                        <div class="tablecol"></div>
-                                        <div class="tablecol"></div>
-                                        <div class="tablecol"></div>
-                                        </div>
-                                    </div> --}}
+                                
 
-                                {{-- <div class="tablerow">
-                                        <div class="stickycol accessories-mp3"><span class="compareheading">MP3 Player</span> <span data-toggle="tooltip" title="" data-placement="right" data-original-title="tooltip text comes here"><i class="fa fa-info-circle"></i></span></div>
-                                        <div class="tableinnercols">
-                                        <div class="tablecol"></div>
-                                        <div class="tablecol"></div>
-                                        <div class="tablecol"></div>
-                                        <div class="tablecol"></div>
-                                        <div class="tablecol"></div>
-                                        <div class="tablecol"></div>
-                                        </div>
-                                    </div> --}}
+                                
                             </div>
                         </div>
                     </div>
@@ -965,7 +903,7 @@ Sun/Moonroof: Rooftop window"><i
 </section>
 
 
-@if($related)
+<?php if($related): ?>
 <section class="featureSec popularSec">
     <div class="featureSecWrap">
         <div class="container-fluid">
@@ -979,10 +917,10 @@ Sun/Moonroof: Rooftop window"><i
             </div>
 
             <div class="row popularSlider">
-                @foreach ($related as $vehicle)
-                @php($detail = json_decode($vehicle->data))
-                @include('frontend.vehicle', ['vehicle' => $vehicle, 'detail' => $detail, 'cols' => $related->count() <
-                    4 ? 'col-md-12' : 'col-md-3' ]) @endforeach </div>
+                <?php $__currentLoopData = $related; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $vehicle): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php ($detail = json_decode($vehicle->data)); ?>
+                <?php echo $__env->make('frontend.vehicle', ['vehicle' => $vehicle, 'detail' => $detail, 'cols' => $related->count() <
+                    4 ? 'col-md-12' : 'col-md-3' ], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?> <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?> </div>
                     <!-- // Row // -->
 
                     <div class="row">
@@ -998,12 +936,12 @@ Sun/Moonroof: Rooftop window"><i
             </div><!-- // Container-Fluid // -->
         </div>
 </section>
-@endif
-@endsection
+<?php endif; ?>
+<?php $__env->stopSection(); ?>
 
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <link rel="stylesheet" href="https://unpkg.com/swiper@6.5.4/swiper-bundle.min.css">
-<link rel="stylesheet" href="{{ asset('frontend/assets/css/vehicle-detail.css') }}" />
+<link rel="stylesheet" href="<?php echo e(asset('frontend/assets/css/vehicle-detail.css')); ?>" />
 <style>
 /*.tableinnercols{border: 1px solid;border-radius: 0;border-left: 0;}*/
 .tablecol .fa-check {
@@ -1046,9 +984,9 @@ section.detail-sec h3 {
     cursor: default;
 }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@push('script')
+<?php $__env->startPush('script'); ?>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/4.3.3/js/swiper.min.js"></script>
 <script>
 $(document).ready(function () {
@@ -1104,7 +1042,7 @@ function price_format(number, decimals) {
 }
 
 
-$.get("{{ route('frontend.vehicle', $id) }}", function(data, status) {
+$.get("<?php echo e(route('frontend.vehicle', $id)); ?>", function(data, status) {
     $('.tableinnercols').each(function() {
         $(this).children().eq(0).show();
         $(this).children().eq(0).text('-');
@@ -1374,4 +1312,5 @@ $.get("{{ route('frontend.vehicle', $id) }}", function(data, status) {
 
 // $(document).ready(function() {});
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+<?php echo $__env->make('frontend.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\nitin\OneDrive\Desktop\carjock-legacy\resources\views/frontend/vehicle-detail.blade.php ENDPATH**/ ?>

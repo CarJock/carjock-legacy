@@ -50,16 +50,19 @@ class HomeController extends Controller
         $featured = Cache::remember('featured_vehicles', 60, function () {
             return Vehicle::where('feature', 'yes')->where('garage', '!=', 1)->take(100)->get();
         });
-
-        // Get random unique values for the first array
-        if (count($featured) > 4) {
+        
+        if ($featured->count() >= 4) {
             $randomValuesArray1 = $featured->random(4);
-        } elseif (count($featured) < 4 && count($featured) > 0) {
-            $randomValuesArray1 = $featured->random();
+        } elseif ($featured->count() > 0) {
+            $randomValuesArray1 = $featured->random($featured->count());
         } else {
             $randomValuesArray1 = collect();
         }
-        // Remove the selected values from the original collection
+        
+        // Ensure $randomValuesArray1 is always a collection
+        $randomValuesArray1 = collect($randomValuesArray1);
+        
+        // Safely calculate the difference
         $remainingCollection = $featured->diff($randomValuesArray1);
         // Get random unique values for the second array from the remaining values
         if (count($remainingCollection) > 4) {
@@ -119,7 +122,7 @@ class HomeController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $vehicle = Vehicle::with('fuel_type', 'engine_type')->findOrFail($id);
         $detail = json_decode($vehicle->data);
@@ -131,14 +134,34 @@ class HomeController extends Controller
         }
         $images = VehicleImage::where('style_id', $vehicle->style_number)->get();
 
-        //dd($images->count());
-        return view('frontend.vehicle-detail', [
-            'id' => $id,
+        // //dd($images->count());
+        // return view('frontend.vehicle-detail', [
+        //     'id' => $id,
+        //     'vehicle' => $vehicle,
+        //     'detail' => $detail,
+        //     'related' => $related_vehicles ?? null,
+        //     'images' => $images
+        // ]);
+
+         // **Check if it's an AJAX request**
+    if ($request->ajax()) {
+        // Return data as JSON
+        return response()->json([
             'vehicle' => $vehicle,
             'detail' => $detail,
-            'related' => $related_vehicles ?? null,
+            'related' => $related_vehicles ?? [],
             'images' => $images
         ]);
+    }
+
+    // For regular HTTP requests, return the view
+    return view('frontend.vehicle-detail', [
+        'id' => $id,
+        'vehicle' => $vehicle,
+        'detail' => $detail,
+        'related' => $related_vehicles ?? null,
+        'images' => $images
+    ]);
     }
 
     /**

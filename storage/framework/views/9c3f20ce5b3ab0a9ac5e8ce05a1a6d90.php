@@ -1,22 +1,20 @@
-@extends('frontend.layouts.app')
-
-@section('content')
-<div class="mainBanner home" style="background-image: url({{ url('storage/banners/'.$banner->image) }});">
+<?php $__env->startSection('content'); ?>
+<div class="mainBanner home" style="background-image: url(<?php echo e(url('storage/banners/'.$banner->image)); ?>);">
    <div class="container-fluid">
       <div class="row">
-         <!-- <img src="{{ asset('frontend/assets/images/banner/mainbanner.png') }}" alt=""> -->
+         <!-- <img src="<?php echo e(asset('frontend/assets/images/banner/mainbanner.png')); ?>" alt=""> -->
          <div class="mainbanneroverlay">
             <!--<span>FIND Your New Vehicle With</span>-->
-            <h1>{{$banner->heading}}</h1>
+            <h1><?php echo e($banner->heading); ?></h1>
             <div class="breadcrumb">
-               <p>{{$banner->content}}</p>
+               <p><?php echo e($banner->content); ?></p>
             </div>
          </div>
       </div>
    </div>
 </div>
 
-@include('frontend.filter')
+<?php echo $__env->make('frontend.filter', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
 
 <!--<section class="filterMain">
@@ -30,32 +28,28 @@
             <div class="tabBoxMain">
                <div class="box-customSearch showfirst">
                   <div class="">
-                     <form action="{{route('frontend.search')}}" method="get" class="row">
+                     <form action="<?php echo e(route('frontend.search')); ?>" method="get" class="row">
                         <div class="col-md-3">
                            <label>Year</label>
                            <select name="year" class="search-field">
                               <option value="">Select Year</option>
-                              @foreach($years as $year)
-                              <option value="{{$year}}">{{$year}}</option>
-                              @endforeach
+                              <?php $__currentLoopData = $years; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $year): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                              <option value="<?php echo e($year); ?>"><?php echo e($year); ?></option>
+                              <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                            </select>
                         </div>
                         <div class="col-md-3">
                            <label>Make</label>
                            <select name="make" class="search-field" id="search-make">
                               <option value="">Select Make</option>
-                              {{-- @foreach ($makes as $make)
-                              <option value="{{ $make->name }}">{{ $make->name }}</option>
-                              @endforeach --}}
+                              
                            </select>
                         </div>
                         <div class="col-md-3">
                            <label>Model</label>
                            <select name="model" class="search-field" id="search-model">
                              <option value="">Select Model</option>
-                             {{-- @foreach ($models as $model)
-                             <option value="{{ $model->name }}">{{ $model->name }}</option>
-                             @endforeach --}}
+                             
                           </select>
                         </div>
                         <div class="col-md-3">
@@ -63,50 +57,50 @@
                               <i class="far fa-search"></i> Find Listing
                            </button>
                            <div class="dropdown">
-                              <p onclick="myFunction()" class="dropbtn"><img src="{{ asset('frontend/assets/images/noun-filter-5440366.png') }}" alt=""> Advanced Filter</p>
+                              <p onclick="myFunction()" class="dropbtn"><img src="<?php echo e(asset('frontend/assets/images/noun-filter-5440366.png')); ?>" alt=""> Advanced Filter</p>
                            </div>
                         </div>
 
                         <div class="dorpdown-style">
                            <div id="myDropdown" class="advance-filter-con">
                            <div class="row">
-                              {{-- <form action="{{route('frontend.search')}}" method="get" class="row"> --}}
+                              
                                  <div class="col-md-3">
                                     <select name="fuel_type" id="">
                                       <option value="">Select Fuel Type</option>
-                                      @foreach ($fuels as $fuel)
-                                      <option value="{{ $fuel->name }}">{{ $fuel->name }}</option>
-                                      @endforeach
+                                      <?php $__currentLoopData = $fuels; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $fuel): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                      <option value="<?php echo e($fuel->name); ?>"><?php echo e($fuel->name); ?></option>
+                                      <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                    </select>
                                  </div>
                                  <div class="col-md-3">
                                     <select name="engine_type" id="">
                                       <option value="">Select Cylinder</option>
-                                      @foreach ($engines as $engine)
-                                      <option value="{{ $engine->name }}">{{ $engine->name }}</option>
-                                      @endforeach
+                                      <?php $__currentLoopData = $engines; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $engine): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                      <option value="<?php echo e($engine->name); ?>"><?php echo e($engine->name); ?></option>
+                                      <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                    </select>
                                  </div>
                                  <div class="col-md-3">
                                     <select name="fuel_economy" id="">
                                       <option value="">Select Fuel Economy</option>
-                                      @foreach ($economy as $eco)
-                                      @php($high_low = json_decode($eco->economy))
-                                          @if(isset($high_low->city->low) && isset($high_low->city->high))
-                                             <option value="">{{ 'High : ' . $high_low->city->high . ' - Low : ' . $high_low->city->low. ' ' . $high_low->unit }}</option>
-                                          @endif
-                                      @endforeach
+                                      <?php $__currentLoopData = $economy; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $eco): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                      <?php ($high_low = json_decode($eco->economy)); ?>
+                                          <?php if(isset($high_low->city->low) && isset($high_low->city->high)): ?>
+                                             <option value=""><?php echo e('High : ' . $high_low->city->high . ' - Low : ' . $high_low->city->low. ' ' . $high_low->unit); ?></option>
+                                          <?php endif; ?>
+                                      <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                    </select>
                                  </div>
                                  <div class="col-md-3">
                                     <select name="fuel_capacity" id="">
                                       <option value="">Select Fuel Capacity</option>
-                                      @foreach ($capacity as $cap)
-                                      @php($high_low = json_decode($cap->capacity))
-                                          @if(isset($high_low->high) && isset($high_low->low))
-                                             <option value="">{{ 'High : ' . $high_low->high . ' - Low : ' . $high_low->low . ' ' . $high_low->unit }}</option>
-                                          @endif
-                                      @endforeach
+                                      <?php $__currentLoopData = $capacity; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $cap): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                      <?php ($high_low = json_decode($cap->capacity)); ?>
+                                          <?php if(isset($high_low->high) && isset($high_low->low)): ?>
+                                             <option value=""><?php echo e('High : ' . $high_low->high . ' - Low : ' . $high_low->low . ' ' . $high_low->unit); ?></option>
+                                          <?php endif; ?>
+                                      <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                    </select>
                                  </div>
                                  <div class="row feature-sec mt-3 mx-2" style=" width: 100%;">
@@ -515,7 +509,7 @@
 
                                  </div>
 
-                              {{-- </form> --}}
+                              
                            </div>
                            </div>
                         </div>
@@ -525,7 +519,7 @@
 
                <div class="box-vehicleMake">
                   <div class="">
-                     <form action="{{route('frontend.search')}}" method="get" class="row">
+                     <form action="<?php echo e(route('frontend.search')); ?>" method="get" class="row">
                         <div class="col-md-6">
                            <label>Search Vehcile</label>
                            <input type="text" name="custom_search" style="border:1px solid;height:57px;border-radius:5px" class="field-style field-split align-left form-control" placeholder="Search for vehicle" />
@@ -534,9 +528,7 @@
                            <label>Make</label>
                            <select name="make" id="">
                               <option value="">Select Make</option>
-                              {{-- @foreach ($makes as $make)
-                              <option value="{{ $make->name }}">{{ $make->name }}</option>
-                              @endforeach --}}
+                              
                            </select>
                         </div>
                         <div class="col-md-3">
@@ -560,59 +552,54 @@
       <div class="container-fluid">
          <div class="row">
             <div class="col-md-12">
-            @if (!empty($content) && isset($content[0]))
-               <h3>{{$content[0]->short_heading}}</h3>
-               <h2>{{$content[0]->heading}}</h2>
-               <p>{{$content[0]->content}}</p>
-            @else
+            <?php if(!empty($content) && isset($content[0])): ?>
+               <h3><?php echo e($content[0]->short_heading); ?></h3>
+               <h2><?php echo e($content[0]->heading); ?></h2>
+               <p><?php echo e($content[0]->content); ?></p>
+            <?php else: ?>
                <p>No content available.</p>
-            @endif
+            <?php endif; ?>
                <ul class="index-slider">
                   <li>
-                     <a href="{{url('search/?order_by=pricing_asc&search%5Bbody_type%5D=Sport+Utility')}}">
-                        <img src="{{ asset('frontend/assets/images/suv.png') }}" alt="">
+                     <a href="<?php echo e(url('search/?order_by=pricing_asc&search%5Bbody_type%5D=Sport+Utility')); ?>">
+                        <img src="<?php echo e(asset('frontend/assets/images/suv.png')); ?>" alt="">
                         <h4>SUV</h4>
                      </a>
                   </li>
 
                   <li>
-                     <a href="{{url('search/?order_by=pricing_asc&search%5Bbody_type%5D=Crew+Cab+Chassis-Cab%7CShort+Bed%7CStandard+Bed%7CLong+Bed%7CCrew+Cab+Pickup%7CExtended+Cab+Chassis-Cab%7CRegular+Cab+Chassis-Cab')}}">
-                        <img src="{{ asset('frontend/assets/images/pickup.png') }}" alt="">
+                     <a href="<?php echo e(url('search/?order_by=pricing_asc&search%5Bbody_type%5D=Crew+Cab+Chassis-Cab%7CShort+Bed%7CStandard+Bed%7CLong+Bed%7CCrew+Cab+Pickup%7CExtended+Cab+Chassis-Cab%7CRegular+Cab+Chassis-Cab')); ?>">
+                        <img src="<?php echo e(asset('frontend/assets/images/pickup.png')); ?>" alt="">
                         <h4>Pickup</h4>
                      </a>
                   </li>
 
                   <li>
-                     <a href="{{url('search/?order_by=pricing_asc&search%5Bbody_type%5D=Specialty+Vehicle')}}">
-                        <img src="{{ asset('frontend/assets/images/spec-veh.png') }}" alt="">
+                     <a href="<?php echo e(url('search/?order_by=pricing_asc&search%5Bbody_type%5D=Specialty+Vehicle')); ?>">
+                        <img src="<?php echo e(asset('frontend/assets/images/spec-veh.png')); ?>" alt="">
                         <h4>Specialty Vehicle</h4>
                      </a>
                   </li>
 
                   <li>
-                     <a href="{{url('search/?order_by=pricing_asc&search%5Bbody_type%5D=4dr+Car')}}">
-                        <img src="{{ asset('frontend/assets/images/sedan.png') }}" alt="">
+                     <a href="<?php echo e(url('search/?order_by=pricing_asc&search%5Bbody_type%5D=4dr+Car')); ?>">
+                        <img src="<?php echo e(asset('frontend/assets/images/sedan.png')); ?>" alt="">
                         <h4>Sedan</h4>
                      </a>
                   </li>
 
                   <li>
-                     <a href="{{url('search/?order_by=pricing_asc&search%5Bbody_type%5D=Full-size+Cargo+Van%7CFull-size+Passenger+Van')}}">
-                        <img src="{{ asset('frontend/assets/images/van.png') }}" alt="">
+                     <a href="<?php echo e(url('search/?order_by=pricing_asc&search%5Bbody_type%5D=Full-size+Cargo+Van%7CFull-size+Passenger+Van')); ?>">
+                        <img src="<?php echo e(asset('frontend/assets/images/van.png')); ?>" alt="">
                         <h4>Van</h4>
                      </a>
                   </li>
 
-                  {{-- <li>
-                     <a href="{{url('search/?order_by=pricing_asc&search%5Bbody_type%5D=4dr+Car')}}">
-                        <img src="{{ asset('frontend/assets/images/electric car.png') }}" alt="">
-                        <h4>Electric Car</h4>
-                     </a>
-                  </li> --}}
+                  
 
                   <li>
-                     <a href="{{url('search/?order_by=pricing_asc&search%5Bbody_type%5D=2dr+Car')}}">
-                        <img src="{{ asset('frontend/assets/images/coup.png') }}" alt="">
+                     <a href="<?php echo e(url('search/?order_by=pricing_asc&search%5Bbody_type%5D=2dr+Car')); ?>">
+                        <img src="<?php echo e(asset('frontend/assets/images/coup.png')); ?>" alt="">
                         <h4>Coup</h4>
                      </a>
                   </li>
@@ -637,54 +624,47 @@
          <div class="row">
             <div class="col-md-12">
                <div class="featureDesTop text-center">
-               @if (isset($content[1]))
-                  <h4>{{$content[1]->short_heading}}</h4>
-                  <h3>{{$content[1]->heading}}</h3>
-                  <p>{{$content[1]->content}}</p>
-               @else
+               <?php if(isset($content[1])): ?>
+                  <h4><?php echo e($content[1]->short_heading); ?></h4>
+                  <h3><?php echo e($content[1]->heading); ?></h3>
+                  <p><?php echo e($content[1]->content); ?></p>
+               <?php else: ?>
                   <p>No additional content available.</p>
-               @endif
+               <?php endif; ?>
 
                </div>
             </div><!-- // COl // -->
          </div><!-- // Row // -->
 
          <div class="row">
-            @foreach($featured_vehicles as $vehicle)
-            @php($detail = json_decode($vehicle->data))
-            @include('frontend.vehicle', ['vehicle' => $vehicle, 'detail' => $detail, 'simple' => true])
-            @endforeach
+            <?php $__currentLoopData = $featured_vehicles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $vehicle): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <?php ($detail = json_decode($vehicle->data)); ?>
+            <?php echo $__env->make('frontend.vehicle', ['vehicle' => $vehicle, 'detail' => $detail, 'simple' => true], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
          </div><!-- // Row // -->
 
          <div class="container">
             <div class="row new_insert_img text-center">
                <div class="col-12">
-                  @foreach($ads as $ad)
-                     @if($ad->slot == 1)
-                        <a href="{{$ad->link}}" target="_blank" onclick="adsClicks(1, 1);">
-                           <img src="{{ url('storage/ads/'.$ad->image) }}" alt="" width="728" height="90">
+                  <?php $__currentLoopData = $ads; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ad): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                     <?php if($ad->slot == 1): ?>
+                        <a href="<?php echo e($ad->link); ?>" target="_blank" onclick="adsClicks(1, 1);">
+                           <img src="<?php echo e(url('storage/ads/'.$ad->image)); ?>" alt="" width="728" height="90">
                         </a>
-                     @endif
-                  @endforeach
+                     <?php endif; ?>
+                  <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                </div>
             </div>
          </div>
 
          <div class="row mTop-60">
-            @foreach($featured_vehicle_one as $vehicle)
-            @php($detail = json_decode($vehicle->data))
-            @include('frontend.vehicle', ['vehicle' => $vehicle, 'detail' => $detail, 'simple' => true])
-            @endforeach
+            <?php $__currentLoopData = $featured_vehicle_one; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $vehicle): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <?php ($detail = json_decode($vehicle->data)); ?>
+            <?php echo $__env->make('frontend.vehicle', ['vehicle' => $vehicle, 'detail' => $detail, 'simple' => true], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
          </div><!-- // Row // -->
 
-         {{-- <div class="row">
-            <div class="col-md-12">
-               <div class="viewMoreBtn">
-                  <a href="javascript:;">View All Listing <i class="far fa-chevron-double-right"></i></a>
-               </div>
-            </div><!-- // Col // -->
-         </div><!-- // Row // -->
-         --}}
+         
 
       </div><!-- // Container-Fluid // -->
    </div>
@@ -699,7 +679,7 @@
 <!--            <div class="row align-items-center mbottom-20 mtop-20">-->
 <!--               <div class="col-md-2">-->
 <!--                  <div class="carImg">-->
-<!--                     <img src="{{ asset('frontend/assets/images/car-icon.png') }}" alt="">-->
+<!--                     <img src="<?php echo e(asset('frontend/assets/images/car-icon.png')); ?>" alt="">-->
 <!--                  </div>-->
 <!--               </div>-->
 <!--               <div class="col-md-10">-->
@@ -710,7 +690,7 @@
 <!--            <div class="row align-items-center mbottom-20 mtop-20">-->
 <!--               <div class="col-md-2">-->
 <!--                  <div class="carImg">-->
-<!--                     <img src="{{ asset('frontend/assets/images/car-icon.png') }}" alt="">-->
+<!--                     <img src="<?php echo e(asset('frontend/assets/images/car-icon.png')); ?>" alt="">-->
 <!--                  </div>-->
 <!--               </div>-->
 <!--               <div class="col-md-10">-->
@@ -719,45 +699,12 @@
 <!--               </div>-->
 <!--            </div>-->
 <!--         </div>-->
-<!--         <div class="col-md-6"><img src="{{ asset('frontend/assets/images/car-1.png') }}" alt=""></div> COl // -->
+<!--         <div class="col-md-6"><img src="<?php echo e(asset('frontend/assets/images/car-1.png')); ?>" alt=""></div> COl // -->
 <!--      </div>-->
 <!--   </div>-->
 <!--</section>-->
 
-{{-- @if($featured_vehicle_carosal->isNotEmpty())
-<section class="featureSec popularSec">
-   <div class="featureSecWrap">
-      <div class="container-fluid">
-         <div class="row">
-            <div class="col-md-12">
-               <div class="featureDesTop text-center">
-                  <h4>CARJOCK</h4>
-                  <h3>POPULAR LISTINGS</h3>
-                  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore<br> magna aliqua enim ad minim veniam, quis nostrud</p>
-               </div>
-            </div><!-- // COl // -->
-         </div><!-- // Row // -->
 
-         <div class="row popularSlider">
-            @foreach($featured_vehicle_carosal as $vehicle)
-                  @php($detail = json_decode($vehicle->data))
-                  @include('frontend.vehicle', ['vehicle' => $vehicle, 'detail' => $detail])
-            @endforeach
-         </div><!-- // Row // -->
-
-         <div class="row">
-            <div class="col-md-12">
-               <div class="testiArrows">
-                  <div class="prev prev1"><i class="far fa-chevron-left"></i></div>
-                  <div class="next next1"><i class="far fa-chevron-right"></i></div>
-               </div>
-            </div><!--// Col // -->
-         </div><!-- // Row // -->
-
-      </div><!-- // Container-Fluid // -->
-   </div>
-</section>
-@endif --}}
 
 <!--<section class="testimonialsSec">-->
 <!--   <div class="testimonialsWrapper">-->
@@ -794,12 +741,12 @@
 <!--         <div class="row justify-content-center">-->
 <!--            <div class="col-md-9">-->
 <!--               <ul class="slider-nav">-->
-<!--                  <li><img src="{{ asset('frontend/assets/images/client-1.png') }}" alt=""></li>-->
-<!--                  <li><img src="{{ asset('frontend/assets/images/client-2.png') }}" alt=""></li>-->
-<!--                  <li><img src="{{ asset('frontend/assets/images/client-3.png') }}" alt=""></li>-->
-<!--                  <li><img src="{{ asset('frontend/assets/images/client-1.png') }}" alt=""></li>-->
-<!--                  <li><img src="{{ asset('frontend/assets/images/client-2.png') }}" alt=""></li>-->
-<!--                  <li><img src="{{ asset('frontend/assets/images/client-3.png') }}" alt=""></li>-->
+<!--                  <li><img src="<?php echo e(asset('frontend/assets/images/client-1.png')); ?>" alt=""></li>-->
+<!--                  <li><img src="<?php echo e(asset('frontend/assets/images/client-2.png')); ?>" alt=""></li>-->
+<!--                  <li><img src="<?php echo e(asset('frontend/assets/images/client-3.png')); ?>" alt=""></li>-->
+<!--                  <li><img src="<?php echo e(asset('frontend/assets/images/client-1.png')); ?>" alt=""></li>-->
+<!--                  <li><img src="<?php echo e(asset('frontend/assets/images/client-2.png')); ?>" alt=""></li>-->
+<!--                  <li><img src="<?php echo e(asset('frontend/assets/images/client-3.png')); ?>" alt=""></li>-->
 <!--               </ul>-->
 <!--            </div>-->
 <!--         </div>-->
@@ -820,15 +767,15 @@
 <!--      <div class="row align-items-end">-->
 <!--         <div class="col-md-4">-->
 <!--            <ul>-->
-<!--               <li><img src="{{ asset('frontend/assets/images/model-1.svg') }}" alt=""></li>-->
-<!--               <li><img src="{{ asset('frontend/assets/images/model-2.svg') }}" alt=""></li>-->
+<!--               <li><img src="<?php echo e(asset('frontend/assets/images/model-1.svg')); ?>" alt=""></li>-->
+<!--               <li><img src="<?php echo e(asset('frontend/assets/images/model-2.svg')); ?>" alt=""></li>-->
 <!--            </ul>-->
 <!--         </div>-->
-<!--         <div class="col-md-4"><img src="{{ asset('frontend/assets/images/car-2.png') }}" alt=""></div>-->
+<!--         <div class="col-md-4"><img src="<?php echo e(asset('frontend/assets/images/car-2.png')); ?>" alt=""></div>-->
 <!--         <div class="col-md-4">-->
 <!--            <ul>-->
-<!--               <li><img src="{{ asset('frontend/assets/images/model-1.svg') }}" alt=""></li>-->
-<!--               <li><img src="{{ asset('frontend/assets/images/model-2.svg') }}" alt=""></li>-->
+<!--               <li><img src="<?php echo e(asset('frontend/assets/images/model-1.svg')); ?>" alt=""></li>-->
+<!--               <li><img src="<?php echo e(asset('frontend/assets/images/model-2.svg')); ?>" alt=""></li>-->
 <!--            </ul>-->
 <!--         </div>-->
 <!--      </div>-->
@@ -842,121 +789,121 @@
            <div class="row text-center">
               <div class="col-md-12">
              
-                  @if (isset($content[3]))
-                     <h4>{{$content[3]->short_heading}}</h4>
-                     <h3>{{$content[3]->heading}}</h3>
-                     <p>{{$content[3]->content}}</p>
-                  @else
+                  <?php if(isset($content[3])): ?>
+                     <h4><?php echo e($content[3]->short_heading); ?></h4>
+                     <h3><?php echo e($content[3]->heading); ?></h3>
+                     <p><?php echo e($content[3]->content); ?></p>
+                  <?php else: ?>
                      <p>No additional content available.</p>
-                  @endif
+                  <?php endif; ?>
                
               </div><!-- // Col // -->
            </div><!-- // Row // -->
 
          <div class="row">
             <div class="col-md-8">
-            @if(isset($posts[0]))
+            <?php if(isset($posts[0])): ?>
                <div class="blogBox">
                   <div class="blogImgHolder">
-                     <img src="{{ asset('blogs/wp-content/uploads/' . $posts[0]->thumbnail_url) }}" alt="" width="770" height="341">
+                     <img src="<?php echo e(asset('blogs/wp-content/uploads/' . $posts[0]->thumbnail_url)); ?>" alt="" width="770" height="341">
                      <div class="categoryHolder">
-                        <h5>{{ $posts[0]->category_name }}</h5>
+                        <h5><?php echo e($posts[0]->category_name); ?></h5>
                      </div>
                   </div>
                   <div class="blogDesHolder">
                      <div class="blogTitleHolder">
-                        <h6>{!! date('d/m/Y', strtotime($posts[0]->post_date)) !!}, POSTED BY <span>{{ $posts[0]->display_name }}</span></h6>
-                        <h2>{{ $posts[0]->post_title }}</h2>
+                        <h6><?php echo date('d/m/Y', strtotime($posts[0]->post_date)); ?>, POSTED BY <span><?php echo e($posts[0]->display_name); ?></span></h6>
+                        <h2><?php echo e($posts[0]->post_title); ?></h2>
                      </div>
 
                      <div class="blogTxtHolder">
-                        <p>{{ $posts[0]->post_content }}</p>
-                        <p><a href="{{url('/')}}/blogs/{{ $posts[0]->post_name }}">See blog detail <i class="fas fa-chevron-circle-right"></i></a></p>
+                        <p><?php echo e($posts[0]->post_content); ?></p>
+                        <p><a href="<?php echo e(url('/')); ?>/blogs/<?php echo e($posts[0]->post_name); ?>">See blog detail <i class="fas fa-chevron-circle-right"></i></a></p>
                      </div>
-            @endif
+            <?php endif; ?>
                   </div>
                </div>
                <div class="row">
-               @if(isset($posts[1]))
+               <?php if(isset($posts[1])): ?>
                      <div class="col-md-6">
                         <div class="blogBox">
                            <div class="blogImgHolder">
-                              <img src="{{ asset('blogs/wp-content/uploads/' . $posts[1]->thumbnail_url) }}" width="370" height="338">
+                              <img src="<?php echo e(asset('blogs/wp-content/uploads/' . $posts[1]->thumbnail_url)); ?>" width="370" height="338">
                      <div class="categoryHolder">
-                        <h5>{{ $posts[1]->category_name }}</h5>
+                        <h5><?php echo e($posts[1]->category_name); ?></h5>
                      </div>
                   </div>
                   <div class="blogDesHolder">
                      <div class="blogTitleHolder">
-                        <h6>{!! date('d/m/Y', strtotime($posts[1]->post_date)) !!}, POSTED BY <span>{{ $posts[1]->display_name }}</span></h6>
-                        <h2>{{ $posts[1]->post_title }}</h2>
+                        <h6><?php echo date('d/m/Y', strtotime($posts[1]->post_date)); ?>, POSTED BY <span><?php echo e($posts[1]->display_name); ?></span></h6>
+                        <h2><?php echo e($posts[1]->post_title); ?></h2>
                      </div>
 
                      <div class="blogTxtHolder">
-                        <p>{{ $posts[1]->post_content }}</p>
-                        <p><a href="{{url('/')}}/blogs/{{ $posts[1]->post_name }}">See blog detail <i class="fas fa-chevron-circle-right"></i></a></p>
+                        <p><?php echo e($posts[1]->post_content); ?></p>
+                        <p><a href="<?php echo e(url('/')); ?>/blogs/<?php echo e($posts[1]->post_name); ?>">See blog detail <i class="fas fa-chevron-circle-right"></i></a></p>
                      </div>
                            </div>
                         </div>
-                  @endif
+                  <?php endif; ?>
                      </div><!-- // Col // -->
                      <div class="col-md-6">
                         <div class="blogBox blogBoxOnlyImg">
                            <div class="blogImgHolder">
-                              @foreach($ads as $adz)
-                                 @if($adz->slot == 2)
-                                    <a href="{{$adz->link}}" target="_blank" onclick="adsClicks(1, 2);">
-                                       <img src="{{ url('storage/ads/'.$adz->image) }}" alt="" height="280" width="336">
+                              <?php $__currentLoopData = $ads; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $adz): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                 <?php if($adz->slot == 2): ?>
+                                    <a href="<?php echo e($adz->link); ?>" target="_blank" onclick="adsClicks(1, 2);">
+                                       <img src="<?php echo e(url('storage/ads/'.$adz->image)); ?>" alt="" height="280" width="336">
                                     </a>
-                                 @endif
-                              @endforeach
+                                 <?php endif; ?>
+                              <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                            </div>
                         </div>
                      </div><!-- // Col // -->
                </div><!-- // Row // -->
             </div><!-- // Col // -->
             <div class="col-md-4">
-            @if(isset($posts[2]))
+            <?php if(isset($posts[2])): ?>
                <div class="blogBox">
                   <div class="blogImgHolder">
-                     <img src="{{ asset('blogs/wp-content/uploads/' . $posts[2]->thumbnail_url) }}" width="370" height="182">
+                     <img src="<?php echo e(asset('blogs/wp-content/uploads/' . $posts[2]->thumbnail_url)); ?>" width="370" height="182">
                      <div class="categoryHolder">
-                        <h5>{{ $posts[2]->category_name }}</h5>
+                        <h5><?php echo e($posts[2]->category_name); ?></h5>
                      </div>
                   </div>
                   <div class="blogDesHolder">
                      <div class="blogTitleHolder">
-                        <h6>{!! date('d/m/Y', strtotime($posts[2]->post_date)) !!}, POSTED BY <span>{{ $posts[2]->display_name }}</span></h6>
-                        <h2>{{ $posts[2]->post_title }}</h2>
+                        <h6><?php echo date('d/m/Y', strtotime($posts[2]->post_date)); ?>, POSTED BY <span><?php echo e($posts[2]->display_name); ?></span></h6>
+                        <h2><?php echo e($posts[2]->post_title); ?></h2>
                      </div>
 
                      <div class="blogTxtHolder">
-                        <p>{{ $posts[2]->post_content }}</p>
-                        <p><a href="{{url('/')}}/blogs/{{ $posts[2]->post_name }}">See blog detail <i class="fas fa-chevron-circle-right"></i></a></p>
+                        <p><?php echo e($posts[2]->post_content); ?></p>
+                        <p><a href="<?php echo e(url('/')); ?>/blogs/<?php echo e($posts[2]->post_name); ?>">See blog detail <i class="fas fa-chevron-circle-right"></i></a></p>
                      </div>
-            @endif
+            <?php endif; ?>
 
                   </div>
                </div>
                <div class="blogBox">
-               @if(isset($posts[3]))
+               <?php if(isset($posts[3])): ?>
                   <div class="blogImgHolder">
-                     <img src="{{ asset('blogs/wp-content/uploads/' . $posts[3]->thumbnail_url) }}" alt="">
+                     <img src="<?php echo e(asset('blogs/wp-content/uploads/' . $posts[3]->thumbnail_url)); ?>" alt="">
                      <div class="categoryHolder">
-                        <h5>{{ $posts[3]->category_name }}</h5>
+                        <h5><?php echo e($posts[3]->category_name); ?></h5>
                      </div>
                   </div>
                   <div class="blogDesHolder">
                      <div class="blogTitleHolder">
-                        <h6>{!! date('d/m/Y', strtotime($posts[3]->post_date)) !!}, POSTED BY <span>{{ $posts[3]->display_name }}</span></h6>
-                        <h2>{{ $posts[3]->post_title }}</h2>
+                        <h6><?php echo date('d/m/Y', strtotime($posts[3]->post_date)); ?>, POSTED BY <span><?php echo e($posts[3]->display_name); ?></span></h6>
+                        <h2><?php echo e($posts[3]->post_title); ?></h2>
                      </div>
 
                      <div class="blogTxtHolder">
-                        <p>{{ $posts[3]->post_content }}</p>
-                        <p><a href="{{url('/')}}/blogs/{{ $posts[3]->post_name }}">See blog detail <i class="fas fa-chevron-circle-right"></i></a></p>
+                        <p><?php echo e($posts[3]->post_content); ?></p>
+                        <p><a href="<?php echo e(url('/')); ?>/blogs/<?php echo e($posts[3]->post_name); ?>">See blog detail <i class="fas fa-chevron-circle-right"></i></a></p>
                      </div>
-               @endif
+               <?php endif; ?>
 
                   </div>
                </div>
@@ -977,9 +924,9 @@
 </section>
 
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <style>
    section.filterMain .tabBoxMain button {
       width: 100%
@@ -1039,9 +986,9 @@
 
    /*tool tips End*/
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@push('script')
+<?php $__env->startPush('script'); ?>
 <script>
    $('.sliderbar').on('input change', function() {
       const sliderEl = $(this);
@@ -1064,7 +1011,7 @@
 
    $(".search-field").change(function() {
       console.log($(this).attr('name'));
-      $.get("{{ url('ajax/query') }}", {
+      $.get("<?php echo e(url('ajax/query')); ?>", {
          type: $(this).attr('name'),
          value: $(this).val()
       }, function(data) {
@@ -1105,4 +1052,6 @@
 
 </script>
 
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('frontend.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\nitin\OneDrive\Desktop\carjock-legacy\resources\views/frontend/home.blade.php ENDPATH**/ ?>
